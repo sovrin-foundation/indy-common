@@ -1,4 +1,5 @@
 import os
+import logging
 from collections import OrderedDict
 
 from plenum.common.txn import ClientBootStrategy
@@ -102,3 +103,9 @@ Node control utils options
 '''
 controlServiceHost = "127.0.0.1"
 controlServicePort = "30003"
+
+
+'''
+logging level for agents
+'''
+agentLoggingLevel = logging.INFO
