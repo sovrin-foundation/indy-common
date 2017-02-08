@@ -18,7 +18,7 @@ from plenum.server.node import Node
 from sovrin_common.auth import Authoriser
 
 from sovrin_common.txn import NYM, TXN_ID, TARGET_NYM, SPONSOR, \
-    STEWARD, ROLE, REF, TXN_TIME, ATTRIB, CLAIM_DEF, ATTR_NAMES, ISSUER_KEY, TGB, \
+    STEWARD, ROLE, REF, TXN_TIME, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY, TGB, \
     TRUSTEE
 
 
@@ -60,7 +60,7 @@ class Edges:
 txnEdges = {
         NYM: Edges.AddsNym,
         ATTRIB: Edges.AddsAttribute,
-        CLAIM_DEF: Edges.AddsClaimDef,
+        SCHEMA: Edges.AddsClaimDef,
         ISSUER_KEY: Edges.HasIssuerKey
     }
 
@@ -703,7 +703,7 @@ class IdentityGraph(OrientDbGraphStore):
                     result[n] = oRecordData[n]
                     break
 
-        if txnType == CLAIM_DEF:
+        if txnType == SCHEMA:
             result[DATA] = {}
             for n in [IP, PORT, KEYS, TYPE, NAME, VERSION]:
                 if n in oRecordData:
