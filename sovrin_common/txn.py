@@ -20,7 +20,7 @@ COMPLETE = 'complete'
 FAIL = 'fail'
 JUSTIFICATION = 'justification'
 
-NIL = '<nil>'
+NULL = 'null'
 OWNER = '<owner>'
 
 LAST_TXN = "lastTxn"
@@ -53,8 +53,8 @@ GET_ATTR = "GET_ATTR"
 GET_NYM = "GET_NYM"
 GET_TXNS = "GET_TXNS"
 GET_TXN = "GET_TXN"
-CLAIM_DEF = "CLAIM_DEF"
-GET_CLAIM_DEF = "GET_CLAIM_DEF"
+SCHEMA = "SCHEMA"
+GET_SCHEMA = "GET_SCHEMA"
 ADD_PKI = "ADD_PKI"
 REQ_CRED = "REQ_CRED"
 GET_NONCE = "GET_NONCE"
@@ -68,30 +68,30 @@ NODE_UPGRADE = 'NODE_UPGRADE'
 # Temp for demo
 GEN_CRED = "GEN_CRED"
 
-openTxns = (GET_NYM, GET_ATTR, GET_CLAIM_DEF, GET_ISSUER_KEY)
+openTxns = (GET_NYM, GET_ATTR, GET_SCHEMA, GET_ISSUER_KEY)
 
 
 # TXN_TYPE -> (requireds, optionals)
 fields = {NYM: ([TARGET_NYM], [ROLE]),
           ATTRIB: ([], [RAW, ENC, HASH]),
-          CLAIM_DEF: ([NAME, VERSION, ATTR_NAMES], [TYPE, ]),
-          GET_CLAIM_DEF: ([], []),
+          SCHEMA: ([NAME, VERSION, ATTR_NAMES], [TYPE, ]),
+          GET_SCHEMA: ([], []),
           ISSUER_KEY: ([REF, DATA]),
           GET_ISSUER_KEY: ([REF, ORIGIN])
           }
 
 CONFIG_TXN_TYPES = {POOL_UPGRADE, NODE_UPGRADE}
 IDENTITY_TXN_TYPES = {NYM,
-                     ATTRIB,
-                     IDPROOF,
-                     DISCLO,
-                     GET_ATTR,
-                     GET_NYM,
-                     GET_TXNS,
-                     CLAIM_DEF,
-                     GET_CLAIM_DEF,
-                     ISSUER_KEY,
-                     GET_ISSUER_KEY}
+                      ATTRIB,
+                      IDPROOF,
+                      DISCLO,
+                      GET_ATTR,
+                      GET_NYM,
+                      GET_TXNS,
+                      SCHEMA,
+                      GET_SCHEMA,
+                      ISSUER_KEY,
+                      GET_ISSUER_KEY}
 
 validTxnTypes = set()
 validTxnTypes.update(POOL_TXN_TYPES)

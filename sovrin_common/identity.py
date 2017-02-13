@@ -3,7 +3,7 @@ from plenum.common.types import Identifier
 from sovrin_common.auth import Authoriser
 
 from sovrin_common.generates_request import GeneratesRequest
-from sovrin_common.txn import SPONSOR, GET_NYM
+from sovrin_common.txn import SPONSOR, GET_NYM, NULL
 from sovrin_common.types import Request
 
 
@@ -15,7 +15,18 @@ class Identity(GeneratesRequest):
                  role=None,
                  last_synced=None,
                  seqNo=None):
+        """
 
+        :param identifier:
+        :param sponsor:
+        :param verkey:
+        :param role: If role is explicitly passed as `null` then in the request
+         to ledger, `role` key would be sent as None which would stop the
+         Identity's ability to do any privileged actions. If role is not passed,
+          `role` key will not be included in the request to the ledger
+        :param last_synced:
+        :param seqNo:
+        """
         self.identifier = identifier
         self.sponsor = sponsor
 
@@ -24,9 +35,9 @@ class Identity(GeneratesRequest):
 
         # None indicates the identifier is a cryptonym
         # if role and role not in (SPONSOR, STEWARD):
-        if not Authoriser.isValidRole(role):
+        if not Authoriser.isValidRole(self.correctRole(role)):
             raise AttributeError("Invalid role {}".format(role))
-        self.role = role
+        self._role = role
 
         # timestamp for when the ledger was last checked for key replacement or
         # revocation
@@ -36,6 +47,20 @@ class Identity(GeneratesRequest):
         # identifier
         self.seqNo = seqNo
 
+    @staticmethod
+    def correctRole(role):
+        return None if role == NULL else role
+
+    @property
+    def role(self):
+        return self.correctRole(self._role)
+
+    @role.setter
+    def role(self, role):
+        if not Authoriser.isValidRole(self.correctRole(role)):
+            raise AttributeError("Invalid role {}".format(role))
+        self._role = role
+
     def _op(self):
         op = {
             TXN_TYPE: NYM,
@@ -43,7 +68,7 @@ class Identity(GeneratesRequest):
         }
         if self.verkey is not None:
             op[VERKEY] = self.verkey
-        if self.role:
+        if self._role:
             op[ROLE] = self.role
         return op
 

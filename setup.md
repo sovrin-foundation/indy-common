@@ -5,7 +5,7 @@ Common utility functions for other Sovrin repos (like sovrin-client, sovrin-node
 
 ### OrientDB Setup Instructions
 
-Install OrientDB from [here](https://github.com/evernym/sovrin-common/blob/master/orientdb_installation.md).
+Install OrientDB from [here](https://github.com/sovrin-foundation/sovrin-common/blob/master/orientdb_installation.md).
 
 
 ### Charm-Crypto Setup Instructions
