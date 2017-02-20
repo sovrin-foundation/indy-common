@@ -15,13 +15,17 @@ parallel 'ubuntu-test':{
                 
                 testEnv.inside {
                     stage('Ubuntu Test: Install dependencies') {
-                        sh 'python3 setup.py install'
-                        sh 'pip3 install pytest'
+                        sh 'virtualenv -p python3.5 test'
+                        def plenum = sh 'grep "plenum.*==.*\'" setup.py'
+                        plenum = plenum[0..-1]
+                        sh 'test/bin/pip install ${plenum}'
+                        sh 'test/bin/python setup.py install'
+                        sh 'test/bin/pip install pytest'
                     }
 
                     stage('Ubuntu Test: Test') {
                         try {
-                            sh 'cd sovrin_common && python3 -m pytest --junitxml=../test-result.xml'
+                            sh 'cd sovrin_common && ../test/bin/python -m pytest --junitxml=../test-result.xml'
                         }
                         finally {
                             junit 'test-result.xml'

@@ -12,7 +12,8 @@ RUN apt-get install -y \
 	python3-nacl
 RUN pip3 install -U \ 
 	pip \ 
-	setuptools
+	setuptools \
+	virtualenv
 ADD ci/orientdb.deb /tmp/orientdb.deb
 RUN apt install -y /tmp/orientdb.deb
 RUN useradd -ms /bin/bash sovrin
