@@ -49,27 +49,6 @@ if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'stable') {
     return
 }
 
-stage('QA notification') {
-	echo 'TODO: Add email sending'
-	// emailext (template: 'qa-deploy-test')
-}
-
-def qaApproval
-stage('QA approval') {
-	try {
-		input(message: 'Do you want to publish this package?')
-		qaApproval = true
-		echo 'QA approval granted'
-	}
-	catch (Exception err) {
-		qaApproval = false
-		echo 'QA approval denied'
-	}
-}
-if (!qaApproval) {
-	return
-}
-
 echo 'Sovrin Common build...'
 
 node('ubuntu') {
@@ -113,3 +92,8 @@ node('ubuntu') {
 }
 
 echo 'Sovrin build: done'
+
+stage('QA notification') {
+    echo 'TODO: Add email sending'
+    // emailext (template: 'qa-deploy-test')
+}
