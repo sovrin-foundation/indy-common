@@ -19,8 +19,8 @@ parallel 'ubuntu-test':{
                         def plenum = sh(returnStdout: true, script: 'grep "plenum.*==.*\'" setup.py').trim()
                         def pattern = /.*(plenum.*==.*)'/
                         def plenumMatcher = (plenum =~ pattern)
-                        def plenumVersion = plenumMatcher[0][1]
-                        sh "test/bin/pip install ${plenumVersion}"
+                        sh "test/bin/pip install ${plenumMatcher[0][1]}"
+                        plenumMatcher = null
                         sh 'test/bin/python setup.py install'
                         sh 'test/bin/pip install pytest'
                     }
