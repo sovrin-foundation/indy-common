@@ -4,8 +4,8 @@ echo 'Sovrin test...'
 
 @NonCPS
 def plenumVersion(text) {
-    def pattern = /.*(plenum.*==.*)'/
-    def plenumMatcher = (plenum =~ pattern)
+    def pattern = /.*(text.*==.*)'/
+    def plenumMatcher = (text =~ pattern)
     plenumMatcher ? plenumMatcher[0][1] : null
 }
 
