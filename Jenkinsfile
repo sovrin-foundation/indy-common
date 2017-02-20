@@ -18,6 +18,9 @@ parallel 'ubuntu-test':{
                         sh 'virtualenv -p python3.5 test'
                         sh 'test/bin/python setup.py install'
                         sh 'test/bin/pip install pytest'
+                        sh 'mkdir .sovrin'
+                        sh 'mkdir .plenum'
+                        sh 'mkdir .raet'
                     }
 
                     stage('Ubuntu Test: Test') {
