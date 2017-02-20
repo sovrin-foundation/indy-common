@@ -6,7 +6,7 @@ echo 'Sovrin test...'
 def plenumVersion(text) {
     def pattern = /.*(text.*==.*)'/
     def plenumMatcher = (text =~ pattern)
-    plenumMatcher ? plenumMatcher[0][1] : null
+    return plenumMatcher[0][1]
 }
 
 parallel 'ubuntu-test':{
