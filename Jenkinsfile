@@ -18,8 +18,9 @@ parallel 'ubuntu-test':{
                         sh 'virtualenv -p python3.5 test'
                         def plenum = sh(returnStdout: true, script: 'grep "plenum.*==.*\'" setup.py').trim()
                         def pattern = /.*(plenum.*==.*)'/
-                        def matcher = (plenum =~ pattern)
-                        sh "test/bin/pip install ${matcher[0][1]}"
+                        def plenumMatcher = (plenum =~ pattern)
+                        def plenumVersion = plenumMatcher[0][1]
+                        sh "test/bin/pip install ${plenumVersion}"
                         sh 'test/bin/python setup.py install'
                         sh 'test/bin/pip install pytest'
                     }
