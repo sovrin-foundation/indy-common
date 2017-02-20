@@ -17,7 +17,8 @@ parallel 'ubuntu-test':{
                     stage('Ubuntu Test: Install dependencies') {
                         sh 'virtualenv -p python3.5 test'
                         def plenum = sh(returnStdout: true, script: 'grep "plenum.*==.*\'" setup.py').trim()
-                        echo "${plenum}"
+                        def matcher = plenum =~ /.*(plenum.*==.*)\'/
+                        plenum = matcher[0][1]
                         sh 'test/bin/pip install ${plenum}'
                         sh 'test/bin/python setup.py install'
                         sh 'test/bin/pip install pytest'
