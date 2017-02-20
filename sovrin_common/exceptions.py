@@ -16,7 +16,7 @@ class LinkNotFound(NotFound):
             self.reason = "Link with name not found".format(name)
 
 
-class ClaimDefNotFound(NotFound):
+class SchemaNotFound(NotFound):
     pass
 
 

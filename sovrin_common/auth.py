@@ -18,6 +18,7 @@ class Authoriser:
         'NYM_role_TGB_': {TRUSTEE: []},
         'NYM_role_STEWARD_': {TRUSTEE: []},
         'NYM_role_SPONSOR_': {TRUSTEE: []},
+        'NYM_verkey_<any>_<any>': {r: [OWNER] for r in ValidRoles},
         'NODE_services__[VALIDATOR]': {STEWARD: [OWNER, ]},
         'NODE_services_[VALIDATOR]_[]': {TRUSTEE: [], STEWARD: [OWNER, ]},
         'POOL_UPGRADE_action__start': {TRUSTEE: [], TGB: []},
@@ -37,10 +38,12 @@ class Authoriser:
             str(newVal).replace('"', '').replace("'", '')
         key = '_'.join([typ, field, oldVal, newVal])
         if key not in Authoriser.AuthMap:
-            msg = 'Cannot create key from {} {} {} {}'.\
-                format(typ, field, oldVal, newVal)
-            logger.error(msg)
-            return False, msg
+            key = '_'.join([typ, field, '<any>', '<any>'])
+            if key not in Authoriser.AuthMap:
+                msg = 'Cannot create key from {} {} {} {}'.\
+                    format(typ, field, oldVal, newVal)
+                logger.error(msg)
+                return False, msg
         roles = Authoriser.AuthMap[key]
         if actorRole not in roles:
             return False, '{} not in allowed roles {}'.format(actorRole, roles)

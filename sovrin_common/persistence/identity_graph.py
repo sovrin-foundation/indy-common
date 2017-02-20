@@ -18,7 +18,7 @@ from plenum.server.node import Node
 from sovrin_common.auth import Authoriser
 
 from sovrin_common.txn import NYM, TXN_ID, TARGET_NYM, SPONSOR, \
-    STEWARD, ROLE, REF, TXN_TIME, ATTRIB, CLAIM_DEF, ATTR_NAMES, ISSUER_KEY, TGB, \
+    STEWARD, ROLE, REF, TXN_TIME, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY, TGB, \
     TRUSTEE
 
 
@@ -30,13 +30,13 @@ MIN_TXN_TIME = time.mktime(datetime.datetime(2000, 1, 1).timetuple())
 class Vertices:
     Nym = NYM
     Attribute = "Attribute"
-    ClaimDef = "ClaimDef"
+    Schema = "Schema"
     IssuerKey = "IssuerKey"
 
     _Properties = {
         Nym: (NYM, VERKEY, TXN_ID, ROLE, F.seqNo.name),
         Attribute: (RAW, ENC, HASH),
-        ClaimDef: (TYPE, ATTR_NAMES),
+        Schema: (TYPE, ATTR_NAMES),
         IssuerKey: (REF, DATA)
     }
 
@@ -53,14 +53,14 @@ class Edges:
     # TODO: Create KnowsAttribute in case the attribute is shared (disclosed)
     # with someone
     AliasOf = "AliasOf"
-    AddsClaimDef = "AddsClaimDef"
+    AddsSchema = "AddsSchema"
     HasIssuerKey = "HasIssuerKey"
 
 
 txnEdges = {
         NYM: Edges.AddsNym,
         ATTRIB: Edges.AddsAttribute,
-        CLAIM_DEF: Edges.AddsClaimDef,
+        SCHEMA: Edges.AddsSchema,
         ISSUER_KEY: Edges.HasIssuerKey
     }
 
@@ -85,13 +85,13 @@ class IdentityGraph(OrientDbGraphStore):
         return [
             (Vertices.Nym, self.createNymClass),
             (Vertices.Attribute, self.createAttributeClass),
-            (Vertices.ClaimDef, self.createClaimDefClass),
+            (Vertices.Schema, self.createSchemaClass),
             (Vertices.IssuerKey, self.createIssuerKeyClass),
             (Edges.AddsNym, self.createAddsNymClass),
             (Edges.AliasOf, self.createAliasOfClass),
             (Edges.AddsAttribute, self.createAddsAttributeClass),
             (Edges.HasAttribute, self.createHasAttributeClass),
-            (Edges.AddsClaimDef, self.createAddsClaimDefClass),
+            (Edges.AddsSchema, self.createAddsSchemaClass),
             (Edges.HasIssuerKey, self.createHasIssuerClass)
         ]
 
@@ -144,8 +144,8 @@ class IdentityGraph(OrientDbGraphStore):
         self.createVertexClass(Vertices.Attribute,
                                properties={"data": "string"})
 
-    def createClaimDefClass(self):
-        self.createVertexClass(Vertices.ClaimDef, properties={
+    def createSchemaClass(self):
+        self.createVertexClass(Vertices.Schema, properties={
             ATTR_NAMES: "string",
             TYPE: "string",
         })
@@ -178,13 +178,13 @@ class IdentityGraph(OrientDbGraphStore):
         self.createUniqueTxnIdEdgeClass(Edges.HasAttribute)
         self.addEdgeConstraint(Edges.HasAttribute, iN=Vertices.Attribute)
 
-    def createAddsClaimDefClass(self):
+    def createAddsSchemaClass(self):
         # TODO: Add compound index on the name and version
-        self.createUniqueTxnIdEdgeClass(Edges.AddsClaimDef, properties={
+        self.createUniqueTxnIdEdgeClass(Edges.AddsSchema, properties={
             NAME: "string",
             VERSION: "string"
         })
-        self.addEdgeConstraint(Edges.AddsClaimDef, iN=Vertices.ClaimDef)
+        self.addEdgeConstraint(Edges.AddsSchema, iN=Vertices.Schema)
 
     def createHasIssuerClass(self):
         self.createUniqueTxnIdEdgeClass(Edges.HasIssuerKey)
@@ -265,13 +265,13 @@ class IdentityGraph(OrientDbGraphStore):
             }
             self.createEdge(Edges.HasAttribute, to, attrVertex._rid, **kwargs)
 
-    def addClaimDef(self, frm, txnId, name, version, attrNames,
-                   typ: Optional[str]=None):
+    def addSchema(self, frm, txnId, name, version, attrNames,
+                  typ: Optional[str]=None):
         kwargs = {
             TYPE: typ,
             ATTR_NAMES: attrNames
         }
-        vertex = self.createVertex(Vertices.ClaimDef, **kwargs)
+        vertex = self.createVertex(Vertices.Schema, **kwargs)
         frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM,
                                                         frm)
         kwargs = {
@@ -279,7 +279,7 @@ class IdentityGraph(OrientDbGraphStore):
             NAME: name,
             VERSION: version
         }
-        self.createEdge(Edges.AddsClaimDef, frm, vertex._rid, **kwargs)
+        self.createEdge(Edges.AddsSchema, frm, vertex._rid, **kwargs)
 
     def addIssuerKey(self, frm, txnId, data, reference):
         kwargs = {
@@ -294,15 +294,11 @@ class IdentityGraph(OrientDbGraphStore):
         }
         self.createEdge(Edges.HasIssuerKey, frm, vertex._rid, **kwargs)
 
-    def updateNym(self, txnId, nym, verkey, seqNo, role):
-        kwargs = {
+    def updateNym(self, txnId, nym, seqNo, **kwargs):
+        kwargs.update({
             TXN_ID: txnId,
-            F.seqNo.name: seqNo,
-            ROLE: role,
-        }
-        if verkey is not None:
-            kwargs[VERKEY] = verkey
-
+            F.seqNo.name: seqNo
+        })
         self.updateEntityWithUniqueId(Vertices.Nym, NYM, nym, **kwargs)
 
     def getRawAttrs(self, frm, *attrNames):
@@ -326,25 +322,25 @@ class IdentityGraph(OrientDbGraphStore):
                 result[key] = [value, seqNos[attrRec._rid]]
         return result
 
-    def getClaimDef(self, frm, name, version):
+    def getSchema(self, frm, name, version):
         # TODO: Can this query be made similar to get attribute?
         cmd = "select outV('{}')[{}='{}'], expand(inV('{}')) from {} where " \
               "name = '{}' and version = '{}'".format(Vertices.Nym, NYM, frm,
-                                                      Vertices.ClaimDef,
-                                                      Edges.AddsClaimDef, name,
+                                                      Vertices.Schema,
+                                                      Edges.AddsSchema, name,
                                                       version)
-        claimDefs = self.client.command(cmd)
-        if claimDefs:
-            claimDef = claimDefs[0].oRecordData
+        schemas = self.client.command(cmd)
+        if schemas:
+            schema = schemas[0].oRecordData
             edgeData = self.client.command(
                 "select expand(inE('{}')) from {}".format(
-                    Edges.AddsClaimDef, claimDefs[0]._rid))[0].oRecordData
+                    Edges.AddsSchema, schemas[0]._rid))[0].oRecordData
             return {
                 NAME: name,
                 VERSION: version,
-                TYPE: claimDef.get(TYPE),
+                TYPE: schema.get(TYPE),
                 F.seqNo.name: edgeData.get(F.seqNo.name),
-                ATTR_NAMES: claimDef.get(ATTR_NAMES),
+                ATTR_NAMES: schema.get(ATTR_NAMES),
                 ORIGIN: frm,
             }
         return None
@@ -432,6 +428,16 @@ class IdentityGraph(OrientDbGraphStore):
                                       "{} = '{}'".format(Edges.AddsNym,
                                                          NYM, nym))
         return None if not sponsor else sponsor[0].oRecordData.get(NYM)
+
+    def getOwnerFor(self, nym):
+        nymV = self.getNym(nym)
+        if nymV:
+            nymData = nymV.oRecordData
+            if VERKEY not in nymData:
+                return self.getSponsorFor(nym)
+            else:
+                return nym
+        logger.error('Nym {} not found'.format(nym))
 
     def countStewards(self):
         return self.countEntitiesByAttrs(Vertices.Nym, {ROLE: STEWARD})
@@ -565,23 +571,33 @@ class IdentityGraph(OrientDbGraphStore):
         if not Authoriser.isValidRole(role):
             raise ValueError("Unknown role {} for nym, cannot add nym to graph"
                              .format(role))
-        nym = txn[TARGET_NYM]
         verkey = txn.get(VERKEY)
+        nym = txn[TARGET_NYM]
         try:
             txnId = txn[TXN_ID]
             seqNo = txn.get(F.seqNo.name)
             # Since NYM vertex has a unique index on the identifier,
-            # (CID or DID) a unique constraint violattion would occur if the
+            # (CID or DID) a unique constraint violation would occur if the
             # nym exists. Instead of catching an exception, a call to hasNym or
             #  getNym could be done but since NYM update txns would be less
-            # common then NYM adding transactions so avoidinhg the cost of
+            # common then NYM adding transactions so avoiding the cost of
             # extra db query
             try:
                 self.addNym(txnId, nym, verkey, role,
                             frm=origin, reference=txn.get(REF),
                             seqNo=seqNo)
             except pyorient.PyOrientORecordDuplicatedException:
-                self.updateNym(txnId, nym, verkey, seqNo, role)
+                updateData = {}
+                # Since role can be None, it is only included for update if
+                # it was supplied in the transaction as if ROLE was not
+                # supplied in transaction, the client did not intend to update
+                # the role, but if absence of role is considered None then it
+                # will lead to the identity losing its role
+                if ROLE in txn:
+                    updateData[ROLE] = txn[ROLE]
+                if VERKEY in txn:
+                    updateData[VERKEY] = txn[VERKEY]
+                self.updateNym(txnId, nym, seqNo, **updateData)
             else:
                 # Only update edge in case of new NYM transaction
                 self._updateTxnIdEdgeWithTxn(txnId, Edges.AddsNym, txn)
@@ -604,19 +620,19 @@ class IdentityGraph(OrientDbGraphStore):
             fault(ex, "An exception was raised while adding attribute: {}".
                   format(ex))
 
-    def addClaimDefTxnToGraph(self, txn):
+    def addSchemaTxnToGraph(self, txn):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
         try:
-            self.addClaimDef(
+            self.addSchema(
                 frm=origin,
                 txnId=txnId,
                 name=data.get(NAME),
                 version=data.get(VERSION),
                 attrNames=data.get(ATTR_NAMES),
                 typ=data.get(TYPE))
-            self._updateTxnIdEdgeWithTxn(txnId, Edges.AddsClaimDef, txn)
+            self._updateTxnIdEdgeWithTxn(txnId, Edges.AddsSchema, txn)
         except Exception as ex:
             fault(ex, "Error adding cred def to orientdb")
 
@@ -703,7 +719,7 @@ class IdentityGraph(OrientDbGraphStore):
                     result[n] = oRecordData[n]
                     break
 
-        if txnType == CLAIM_DEF:
+        if txnType == SCHEMA:
             result[DATA] = {}
             for n in [IP, PORT, KEYS, TYPE, NAME, VERSION]:
                 if n in oRecordData:
