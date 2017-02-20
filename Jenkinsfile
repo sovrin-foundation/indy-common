@@ -4,8 +4,10 @@ echo 'Sovrin test...'
 
 @NonCPS
 def plenumVersion(text) {
+    echo "plenumVersion -> input ${text}"
     def pattern = /.*(text.*==.*)'/
     def plenumMatcher = (text =~ pattern)
+    echo "plenumVersion -> output ${plenumMatcher[0][1]}"
     return plenumMatcher[0][1]
 }
 
