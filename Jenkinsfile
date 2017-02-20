@@ -2,6 +2,13 @@
 
 echo 'Sovrin test...'
 
+@NonCPS
+def plenumVersion(text) {
+    def pattern = /.*(plenum.*==.*)'/
+    def plenumMatcher = (plenum =~ pattern)
+    plenumMatcher ? plenumMatcher[0][1] : null
+}
+
 parallel 'ubuntu-test':{
     node('ubuntu') {
         try {
@@ -17,9 +24,8 @@ parallel 'ubuntu-test':{
                     stage('Ubuntu Test: Install dependencies') {
                         sh 'virtualenv -p python3.5 test'
                         def plenum = sh(returnStdout: true, script: 'grep "plenum.*==.*\'" setup.py').trim()
-                        def pattern = /.*(plenum.*==.*)'/
-                        def plenumMatcher = (plenum =~ pattern)
-                        sh "test/bin/pip install ${plenumMatcher[0][1]}"
+                        plenum = plenumVersion(plenum)
+                        sh "test/bin/pip install ${plenum}"
                         plenumMatcher = null
                         sh 'test/bin/python setup.py install'
                         sh 'test/bin/pip install pytest'
