@@ -35,7 +35,7 @@ parallel 'ubuntu-test':{
 
                     stage('Ubuntu Test: Test') {
                         try {
-                            sh 'cd sovrin_common && ../test/bin/python -m pytest --junitxml=../test-result.xml'
+                            sh 'test/bin/python -m pytest --junitxml=test-result.xml'
                         }
                         finally {
                             junit 'test-result.xml'
