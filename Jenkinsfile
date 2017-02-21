@@ -24,18 +24,18 @@ parallel 'ubuntu-test':{
                 
                 testEnv.inside {
                     stage('Ubuntu Test: Install dependencies') {
-                        sh 'virtualenv -p python3.5 test'
+                        sh 'cd .. && virtualenv -p python3.5 test'
                         def plenum = sh(returnStdout: true, script: 'grep "plenum.*==.*\'" setup.py').trim()
                         plenum = plenumVersion(plenum)
-                        sh "test/bin/pip install ${plenum}"
+                        sh "../test/bin/pip install ${plenum}"
                         plenumMatcher = null
-                        sh 'test/bin/python setup.py install'
-                        sh 'test/bin/pip install pytest'
+                        sh '../test/bin/python setup.py install'
+                        sh '../test/bin/pip install pytest'
                     }
 
                     stage('Ubuntu Test: Test') {
                         try {
-                            sh 'test/bin/python -m pytest --junitxml=test-result.xml'
+                            sh '../test/bin/python -m pytest --junitxml=test-result.xml'
                         }
                         finally {
                             junit 'test-result.xml'
