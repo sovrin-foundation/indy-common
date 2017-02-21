@@ -22,7 +22,7 @@ parallel 'ubuntu-test':{
                 sh 'ln -sf ci/sovrin-common-ubuntu.dockerfile Dockerfile'
                 def testEnv = docker.build 'sovrin-common-test'
                 
-                testEnv.inside {
+                testEnv.inside() {
                     stage('Ubuntu Test: Install dependencies') {
                         sh 'virtualenv -p python3.5 test'
                         def plenum = sh(returnStdout: true, script: 'grep "plenum.*==.*\'" setup.py').trim()
@@ -35,7 +35,7 @@ parallel 'ubuntu-test':{
 
                     stage('Ubuntu Test: Test') {
                         try {
-                            sh 'cd sovrin_common && ../test/bin/python -m pytest --junitxml=../test-result.xml'
+                            sh 'cd sovrin_common && /home/sovrin/test/bin/python -m pytest --junitxml=../test-result.xml'
                         }
                         finally {
                             junit 'test-result.xml'
