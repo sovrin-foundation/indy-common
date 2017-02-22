@@ -21,6 +21,10 @@ class Authoriser:
         'NYM_verkey_<any>_<any>': {r: [OWNER] for r in ValidRoles},
         'NODE_services__[VALIDATOR]': {STEWARD: [OWNER, ]},
         'NODE_services_[VALIDATOR]_[]': {TRUSTEE: [], STEWARD: [OWNER, ]},
+        'NODE_node_ip_<any>_<any>': {STEWARD: [OWNER, ]},
+        'NODE_node_port_<any>_<any>': {STEWARD: [OWNER, ]},
+        'NODE_client_ip_<any>_<any>': {STEWARD: [OWNER, ]},
+        'NODE_client_port_<any>_<any>': {STEWARD: [OWNER, ]},
         'POOL_UPGRADE_action__start': {TRUSTEE: [], TGB: []},
         'POOL_UPGRADE_action_start_cancel': {TRUSTEE: [], TGB: []}
     }
@@ -40,8 +44,8 @@ class Authoriser:
         if key not in Authoriser.AuthMap:
             key = '_'.join([typ, field, '<any>', '<any>'])
             if key not in Authoriser.AuthMap:
-                msg = 'Cannot create key from {} {} {} {}'.\
-                    format(typ, field, oldVal, newVal)
+                msg = "key '{}' not found in authorized map".\
+                    format(key)
                 logger.error(msg)
                 return False, msg
         roles = Authoriser.AuthMap[key]
