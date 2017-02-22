@@ -204,7 +204,7 @@ def systemTests() {
 def notifyQA(version) {
     emailext (
         subject: "New release candidate 'sovrin-common-$version' is waiting for approval",
-        body: "Please go to ${BUILD_URL} and verify the build",
+        body: "Please go to ${BUILD_URL}console and verify the build",
         to: 'alexander.sherbakov@dsr-company.com'
     )
 }
