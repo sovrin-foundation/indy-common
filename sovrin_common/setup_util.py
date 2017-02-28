@@ -56,7 +56,6 @@ class Setup:
             destFilePath = os.path.join(self.base_dir, fileName)
             if os.path.exists(destFilePath) and not force:
                 continue
-            destFilePath = os.path.join(self.base_dir, fileName)
             copyfile(sourceFilePath, destFilePath)
 
         return self
