@@ -1,23 +1,23 @@
 from plenum.common.log import getlogger
-from sovrin_common.txn import STEWARD, SPONSOR, OWNER, TGB, TRUSTEE
+from sovrin_common.txn import STEWARD, TRUST_ANCHOR, OWNER, TGB, TRUSTEE
 
 
 logger = getlogger()
 
 
 class Authoriser:
-    ValidRoles = (TRUSTEE, TGB, STEWARD, SPONSOR, None)
+    ValidRoles = (TRUSTEE, TGB, STEWARD, TRUST_ANCHOR, None)
 
     AuthMap = {
         'NYM_role__TRUSTEE': {TRUSTEE: [], },
         'NYM_role__TGB': {TRUSTEE: [], },
         'NYM_role__STEWARD': {TRUSTEE: [], STEWARD: []},
-        'NYM_role__SPONSOR': {TRUSTEE: [], STEWARD: []},
-        'NYM_role__': {TRUSTEE: [], TGB: [], STEWARD: [], SPONSOR: []},
+        'NYM_role__TRUST_ANCHOR': {TRUSTEE: [], STEWARD: []},
+        'NYM_role__': {TRUSTEE: [], TGB: [], STEWARD: [], TRUST_ANCHOR: []},
         'NYM_role_TRUSTEE_': {TRUSTEE: []},
         'NYM_role_TGB_': {TRUSTEE: []},
         'NYM_role_STEWARD_': {TRUSTEE: []},
-        'NYM_role_SPONSOR_': {TRUSTEE: []},
+        'NYM_role_TRUST_ANCHOR_': {TRUSTEE: []},
         'NYM_verkey_<any>_<any>': {r: [OWNER] for r in ValidRoles},
         'NODE_services__[VALIDATOR]': {STEWARD: [OWNER, ]},
         'NODE_services_[VALIDATOR]_[]': {TRUSTEE: [], STEWARD: [OWNER, ]},

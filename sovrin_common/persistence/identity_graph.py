@@ -17,7 +17,7 @@ from plenum.persistence.orientdb_graph_store import OrientDbGraphStore
 from plenum.server.node import Node
 from sovrin_common.auth import Authoriser
 
-from sovrin_common.txn import NYM, TXN_ID, TARGET_NYM, SPONSOR, \
+from sovrin_common.txn import NYM, TXN_ID, TARGET_NYM, TRUST_ANCHOR, \
     STEWARD, ROLE, REF, TXN_TIME, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY, TGB, \
     TRUSTEE
 
@@ -171,7 +171,7 @@ class IdentityGraph(OrientDbGraphStore):
     def createAddsAttributeClass(self):
         self.createEdgeClassWithTxnData(Edges.AddsAttribute,
                                         properties={TARGET_NYM: "string"})
-        # Not specifying `out` here as both Sponsor and Agent can add attributes
+        # Not specifying `out` here as both TrustAnchor and Agent can add attributes
         self.addEdgeConstraint(Edges.AddsAttribute, iN=Vertices.Attribute)
 
     def createHasAttributeClass(self):
@@ -201,7 +201,7 @@ class IdentityGraph(OrientDbGraphStore):
         kwargs = {
             NYM: nym,
             TXN_ID: txnId,  # # Need to have txnId as a property for cases
-            # where we dont know the sponsor of this nym or its a genesis nym
+            # where we dont know the trust anchor of this nym or its a genesis nym
         }
 
         # Need to have role as a property of the vertex it
@@ -392,8 +392,8 @@ class IdentityGraph(OrientDbGraphStore):
     def getSteward(self, nym):
         return self.getNym(nym, STEWARD)
 
-    def getSponsor(self, nym):
-        return self.getNym(nym, SPONSOR)
+    def getTrustAnchor(self, nym):
+        return self.getNym(nym, TRUST_ANCHOR)
 
     # def getUser(self, nym):
     #     return self.getNym(nym, USER)
@@ -407,8 +407,8 @@ class IdentityGraph(OrientDbGraphStore):
     def hasSteward(self, nym):
         return bool(self.getSteward(nym))
 
-    def hasSponsor(self, nym):
-        return bool(self.getSponsor(nym))
+    def hasTrustAnchor(self, nym):
+        return bool(self.getTrustAnchor(nym))
 
     # def hasUser(self, nym):
     #     return bool(self.getUser(nym))
@@ -423,18 +423,18 @@ class IdentityGraph(OrientDbGraphStore):
         else:
             return nymV.oRecordData.get(ROLE)
 
-    def getSponsorFor(self, nym):
-        sponsor = self.client.command("select expand (out) from {} where "
+    def getTrustAnchorFor(self, nym):
+        trustAnchor = self.client.command("select expand (out) from {} where "
                                       "{} = '{}'".format(Edges.AddsNym,
                                                          NYM, nym))
-        return None if not sponsor else sponsor[0].oRecordData.get(NYM)
+        return None if not trustAnchor else trustAnchor[0].oRecordData.get(NYM)
 
     def getOwnerFor(self, nym):
         nymV = self.getNym(nym)
         if nymV:
             nymData = nymV.oRecordData
             if VERKEY not in nymData:
-                return self.getSponsorFor(nym)
+                return self.getTrustAnchorFor(nym)
             else:
                 return nym
         logger.error('Nym {} not found'.format(nym))
