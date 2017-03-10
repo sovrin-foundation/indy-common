@@ -1,6 +1,7 @@
 from plenum.common.log import getlogger
-from sovrin_common.txn import STEWARD, TRUST_ANCHOR, OWNER, TGB, TRUSTEE
-
+from plenum.common.roles import Roles
+from plenum.common.txn import TRUSTEE, TGB, STEWARD, TRUST_ANCHOR
+from sovrin_common.txn import OWNER
 
 logger = getlogger()
 
@@ -9,29 +10,65 @@ class Authoriser:
     ValidRoles = (TRUSTEE, TGB, STEWARD, TRUST_ANCHOR, None)
 
     AuthMap = {
-        'NYM_role__TRUSTEE': {TRUSTEE: [], },
-        'NYM_role__TGB': {TRUSTEE: [], },
-        'NYM_role__STEWARD': {TRUSTEE: [], STEWARD: []},
-        'NYM_role__TRUST_ANCHOR': {TRUSTEE: [], STEWARD: []},
-        'NYM_role__': {TRUSTEE: [], TGB: [], STEWARD: [], TRUST_ANCHOR: []},
-        'NYM_role_TRUSTEE_': {TRUSTEE: []},
-        'NYM_role_TGB_': {TRUSTEE: []},
-        'NYM_role_STEWARD_': {TRUSTEE: []},
-        'NYM_role_TRUST_ANCHOR_': {TRUSTEE: []},
-        'NYM_verkey_<any>_<any>': {r: [OWNER] for r in ValidRoles},
-        'NODE_services__[VALIDATOR]': {STEWARD: [OWNER, ]},
-        'NODE_services_[VALIDATOR]_[]': {TRUSTEE: [], STEWARD: [OWNER, ]},
-        'NODE_node_ip_<any>_<any>': {STEWARD: [OWNER, ]},
-        'NODE_node_port_<any>_<any>': {STEWARD: [OWNER, ]},
-        'NODE_client_ip_<any>_<any>': {STEWARD: [OWNER, ]},
-        'NODE_client_port_<any>_<any>': {STEWARD: [OWNER, ]},
-        'POOL_UPGRADE_action__start': {TRUSTEE: [], TGB: []},
-        'POOL_UPGRADE_action_start_cancel': {TRUSTEE: [], TGB: []}
+        'NYM_role__{}'.format(TRUSTEE):
+            {TRUSTEE: [],},
+        'NYM_role__{}'.format(TGB):
+            {TRUSTEE: [],},
+        'NYM_role__{}'.format(STEWARD):
+            {TRUSTEE: [], STEWARD: []},
+        'NYM_role__{}'.format(TRUST_ANCHOR):
+            {TRUSTEE: [], STEWARD: []},
+        'NYM_role__':
+            {TRUSTEE: [], TGB: [], STEWARD: [], TRUST_ANCHOR: []},
+        'NYM_role_{}_'.format(TRUSTEE):
+            {TRUSTEE: []},
+        'NYM_role_{}_'.format(TGB):
+            {TRUSTEE: []},
+        'NYM_role_{}_'.format(STEWARD):
+            {TRUSTEE: []},
+        'NYM_role_{}_'.format(TRUST_ANCHOR):
+            {TRUSTEE: []},
+        'NYM_verkey_<any>_<any>':
+            {r: [OWNER] for r in ValidRoles},
+        'NODE_services__[VALIDATOR]':
+            {STEWARD: [OWNER, ]},
+        'NODE_services_[VALIDATOR]_[]':
+            {TRUSTEE: [], STEWARD: [OWNER, ]},
+        'NODE_node_ip_<any>_<any>':
+            {STEWARD: [OWNER, ]},
+        'NODE_node_port_<any>_<any>':
+            {STEWARD: [OWNER, ]},
+        'NODE_client_ip_<any>_<any>':
+            {STEWARD: [OWNER, ]},
+        'NODE_client_port_<any>_<any>':
+            {STEWARD: [OWNER, ]},
+        'POOL_UPGRADE_action__start':
+            {TRUSTEE: [], TGB: []},
+        'POOL_UPGRADE_action_start_cancel':
+            {TRUSTEE: [], TGB: []}
     }
 
     @staticmethod
     def isValidRole(role) -> bool:
         return role in Authoriser.ValidRoles
+
+    @staticmethod
+    def getRoleFromName(roleName) -> bool:
+        if not roleName:
+            return None
+        return Roles[roleName].value
+
+    @staticmethod
+    def isValidRoleName(roleName) -> bool:
+        if not roleName:
+            return True
+
+        try:
+            Authoriser.getRoleFromName(roleName)
+        except KeyError:
+            return False
+
+        return True
 
     @staticmethod
     def authorised(typ, field, actorRole, oldVal=None, newVal=None,
@@ -44,7 +81,7 @@ class Authoriser:
         if key not in Authoriser.AuthMap:
             key = '_'.join([typ, field, '<any>', '<any>'])
             if key not in Authoriser.AuthMap:
-                msg = "key '{}' not found in authorized map".\
+                msg = "key '{}' not found in authorized map". \
                     format(key)
                 logger.error(msg)
                 return False, msg

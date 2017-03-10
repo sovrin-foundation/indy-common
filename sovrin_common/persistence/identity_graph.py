@@ -10,16 +10,15 @@ from ledger.util import F
 from plenum.common.error import fault
 from plenum.common.log import getlogger
 from plenum.common.txn import TXN_TYPE, TYPE, IP, PORT, KEYS, NAME, VERSION, \
-    DATA, RAW, ENC, HASH, ORIGIN, VERKEY
+    DATA, RAW, ENC, HASH, ORIGIN, VERKEY, TRUSTEE, TGB, STEWARD, TRUST_ANCHOR
 from plenum.common.types import f
 from plenum.common.util import error
 from plenum.persistence.orientdb_graph_store import OrientDbGraphStore
 from plenum.server.node import Node
 from sovrin_common.auth import Authoriser
 
-from sovrin_common.txn import NYM, TXN_ID, TARGET_NYM, TRUST_ANCHOR, \
-    STEWARD, ROLE, REF, TXN_TIME, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY, TGB, \
-    TRUSTEE
+from sovrin_common.txn import NYM, TXN_ID, TARGET_NYM, \
+    ROLE, REF, TXN_TIME, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY
 
 
 logger = getlogger()

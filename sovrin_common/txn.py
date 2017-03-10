@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from plenum.common.txn import TXN_TYPE, TARGET_NYM, ORIGIN, DATA, TXN_ID, TXN_TIME, \
     RAW, ENC, HASH, NAME, VERSION, TYPE, POOL_TXN_TYPES, ALIAS, \
-    STEWARD, NYM, VERKEY
+    NYM, VERKEY, TRUSTEE, STEWARD, TRUST_ANCHOR
 from plenum.common.types import f
 
 ROLE = 'role'
@@ -133,14 +133,6 @@ def newTxn(txnType, target=None, data=None, enc=None, raw=None,
     if role:
         txn[ROLE] = role
     return txn
-
-
-# TODO: Move them to a separate file
-# ROLE types
-STEWARD = STEWARD
-TRUST_ANCHOR = "TRUST_ANCHOR"
-TRUSTEE = "TRUSTEE"
-TGB = "TGB"
 
 
 def getGenesisTxns():
