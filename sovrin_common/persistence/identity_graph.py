@@ -612,9 +612,12 @@ class IdentityGraph(OrientDbGraphStore):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         try:
-            self.addAttribute(frm=origin, txnId=txnId, raw=txn.get(RAW),
-                              enc=txn.get(ENC), hash=txn.get(HASH),
-                              to=txn.get(TARGET_NYM))
+            self.addAttribute(frm=origin,
+                              txnId=txnId,
+                              raw=txn.get(RAW),
+                              enc=txn.get(ENC),
+                              hash=txn.get(HASH),
+                              to=txn.get(TARGET_NYM) or origin)
             self._updateTxnIdEdgeWithTxn(txnId, Edges.AddsAttribute, txn)
         except pyorient.PyOrientCommandException as ex:
             fault(ex, "An exception was raised while adding attribute: {}".
