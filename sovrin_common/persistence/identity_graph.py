@@ -626,6 +626,12 @@ class IdentityGraph(OrientDbGraphStore):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except Exception as ex:
+                fault(ex, "Cannot convert string data {} to JSON".format(data))
+                return
         try:
             self.addSchema(
                 frm=origin,
@@ -638,10 +644,17 @@ class IdentityGraph(OrientDbGraphStore):
         except Exception as ex:
             fault(ex, "Error adding cred def to orientdb")
 
+
     def addIssuerKeyTxnToGraph(self, txn):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except Exception as ex:
+                fault(ex, "Cannot convert data from string to JSON")
+                return
         try:
             self.addIssuerKey(
                 frm=origin,
