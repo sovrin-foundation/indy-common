@@ -125,14 +125,19 @@ try {
 }
 
 @NonCPS
+def extractVersionFromText(text, match) {
+    echo "${match}Version -> input ${text}"
+    def pattern = /.*(${match}[-a-z]*==[\.0-9]+)'/
+    def matcher = (text =~ pattern)
+    echo "${match}Version -> output ${matcher[0][1]}"
+    return matcher[0][1]
+}
+
 def extractVersion(match) {
     try {
-        def text = sh(returnStdout: true, script: "grep \"${match}.*==.*\'\" setup.py").trim()
-        echo "${match}Version -> input ${text}"
-        def pattern = /.*(${match}[-a-z]*==[\.0-9]+)'/
-        def matcher = (text =~ pattern)
-        echo "${match}Version -> output ${matcher[0][1]}"
-        return matcher[0][1]
+        def text = sh(returnStdout: true, script: "grep \"${match}.*==.*\'\" setup.py")
+        text = text.trim()
+        return extractVersionFromText(text, match)
     }
     catch(e) {
         return match
