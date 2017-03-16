@@ -134,7 +134,7 @@ def extractVersionFromText(text, match) {
 def extractVersion(match) {
     def ret = match
     try {
-        def text = sh(returnStdout: true, script: "grep \"${match}.*==.*\'\" setup.py")
+        def text = sh(returnStdout: true, script: "grep \"${match}[-a-z=\.0-9]*'\" setup.py")
         text = text.trim()
         echo "${match}Version -> input ${text}"
         ret = extractVersionFromText(text, match)
