@@ -622,16 +622,28 @@ class IdentityGraph(OrientDbGraphStore):
             fault(ex, "An exception was raised while adding attribute: {}".
                   format(ex))
 
+    def parseTxnData(self, data):
+        """
+        parse stringified data to json
+        :param data: stringfied data
+        :return:
+        """
+        try:
+            return json.loads(data)
+        except Exception as ex:
+            fault(ex, "Cannot convert string data {} to JSON".format(data))
+            return
+
     def addSchemaTxnToGraph(self, txn):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
+
         if isinstance(data, str):
-            try:
-                data = json.loads(data)
-            except Exception as ex:
-                fault(ex, "Cannot convert string data {} to JSON".format(data))
+            data = self.parseTxnData(data)
+            if not data:
                 return
+
         try:
             self.addSchema(
                 frm=origin,
@@ -649,12 +661,12 @@ class IdentityGraph(OrientDbGraphStore):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
+
         if isinstance(data, str):
-            try:
-                data = json.loads(data)
-            except Exception as ex:
-                fault(ex, "Cannot convert data from string to JSON")
+            data = self.parseTxnData(data)
+            if not data:
                 return
+
         try:
             self.addIssuerKey(
                 frm=origin,
