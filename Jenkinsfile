@@ -125,12 +125,24 @@ try {
 }
 
 @NonCPS
-def plenumVersion(text) {
-    echo "plenumVersion -> input ${text}"
-    def pattern = /.*(plenum.*==.*)'/
-    def plenumMatcher = (text =~ pattern)
-    echo "plenumVersion -> output ${plenumMatcher[0][1]}"
-    return plenumMatcher[0][1]
+def extractVersionFromText(text, match) {
+    def pattern = /.*(${match}[-a-z]*==[\.0-9]+)'/
+    def matcher = (text =~ pattern)
+    return matcher[0][1]
+}
+
+def extractVersion(match) {
+    def ret = match
+    try {
+        def text = sh(returnStdout: true, script: "grep \"${match}.*==.*\'\" setup.py")
+        text = text.trim()
+        echo "${match}Version -> input ${text}"
+        ret = extractVersionFromText(text, match)
+    }
+    finally {
+        echo "${match}Version -> output ${ret}"
+        return ret
+    }
 }
 
 def testUbuntu() {
@@ -145,10 +157,9 @@ def testUbuntu() {
         testEnv.inside {
             echo 'Ubuntu Test: Install dependencies'
             sh 'cd /home/sovrin && virtualenv -p python3.5 test'
-            def plenum = sh(returnStdout: true, script: 'grep "plenum.*==.*\'" setup.py').trim()
-            plenum = plenumVersion(plenum)
+            
+            plenum = extractVersion('plenum')
             sh "/home/sovrin/test/bin/pip install ${plenum}"
-            plenumMatcher = null
             sh '/home/sovrin/test/bin/python setup.py install'
             sh '/home/sovrin/test/bin/pip install pytest'
 
