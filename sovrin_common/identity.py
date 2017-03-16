@@ -1,16 +1,16 @@
-from plenum.common.txn import TARGET_NYM, TXN_TYPE, NYM, ROLE, STEWARD, VERKEY
+from plenum.common.txn import TARGET_NYM, TXN_TYPE, NYM, ROLE, VERKEY
 from plenum.common.types import Identifier
 from sovrin_common.auth import Authoriser
 
 from sovrin_common.generates_request import GeneratesRequest
-from sovrin_common.txn import SPONSOR, GET_NYM, NULL
+from sovrin_common.txn import GET_NYM, NULL
 from sovrin_common.types import Request
 
 
 class Identity(GeneratesRequest):
     def __init__(self,
                  identifier: Identifier,
-                 sponsor: Identifier=None,
+                 trustAnchor: Identifier=None,
                  verkey=None,
                  role=None,
                  last_synced=None,
@@ -18,7 +18,7 @@ class Identity(GeneratesRequest):
         """
 
         :param identifier:
-        :param sponsor:
+        :param trustAnchor:
         :param verkey:
         :param role: If role is explicitly passed as `null` then in the request
          to ledger, `role` key would be sent as None which would stop the
@@ -28,13 +28,13 @@ class Identity(GeneratesRequest):
         :param seqNo:
         """
         self.identifier = identifier
-        self.sponsor = sponsor
+        self.trustAnchor = trustAnchor
 
         # None indicates the identifier is a cryptonym
         self.verkey = verkey
 
         # None indicates the identifier is a cryptonym
-        # if role and role not in (SPONSOR, STEWARD):
+        # if role and role not in (TRUST_ANCHOR, STEWARD):
         if not Authoriser.isValidRole(self.correctRole(role)):
             raise AttributeError("Invalid role {}".format(role))
         self._role = role
@@ -75,7 +75,7 @@ class Identity(GeneratesRequest):
     def ledgerRequest(self):
         if not self.seqNo:
             assert self.identifier is not None
-            return Request(identifier=self.sponsor, operation=self._op())
+            return Request(identifier=self.trustAnchor, operation=self._op())
 
     def _opForGet(self):
         return {
