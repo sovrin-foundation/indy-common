@@ -125,11 +125,16 @@ try {
 }
 
 @NonCPS
-def extractVersion(match) {
-    def text = sh(returnStdout: true, script: "grep \"${match}[-a-z=\\.0-9]*'\" setup.py").trim()
+def extractVersionFromText(match, text) {
     def pattern = /.*(${match}[-a-z=\\.0-9]*)'/
     def matcher = (text =~ pattern)
     return matcher[0][1]
+}
+
+def extractVersion(match) {
+    def text = sh(returnStdout: true, script: "grep \"${match}[-a-z=\\.0-9]*'\" setup.py").trim()
+    echo "${match}Version -> matching against ${text}"
+    return extractVersionFromText(match, text)
 }
 
 def testUbuntu() {
