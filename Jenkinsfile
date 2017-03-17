@@ -146,7 +146,7 @@ def testUbuntu() {
         sh 'ln -sf ci/ubuntu.dockerfile Dockerfile'
         def testEnv = docker.build 'sovrin-common-test'
 
-        testEnv.inside('-u sovrin') {
+        testEnv.inside {
             echo 'Ubuntu Test: Install dependencies'
             
             plenum = extractVersion('plenum')
