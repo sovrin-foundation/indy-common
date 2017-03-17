@@ -143,12 +143,11 @@ def testUbuntu() {
         checkout scm
 
         echo 'Ubuntu Test: Build docker image'
-        sh 'ln -sf ci/sovrin-common-ubuntu.dockerfile Dockerfile'
+        sh 'ln -sf ci/ubuntu.dockerfile Dockerfile'
         def testEnv = docker.build 'sovrin-common-test'
 
         testEnv.inside {
             echo 'Ubuntu Test: Install dependencies'
-            sh 'cd /home/sovrin && virtualenv -p python3.5 test'
             
             plenum = extractVersion('plenum')
             sh "/home/sovrin/test/bin/pip install ${plenum}"
