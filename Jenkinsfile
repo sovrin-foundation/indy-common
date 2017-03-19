@@ -2,8 +2,6 @@
 
 @Library('SovrinHelpers') _
 
-testAndPublish([ubuntu: testUbuntu, windows: testWindows])
-
 @NonCPS
 def extractVersionFromText(match, text) {
     def pattern = /.*(${match}[-a-z=\\.0-9]*)'/
@@ -55,6 +53,8 @@ def testUbuntu = {
 def testWindows = {
     echo 'TODO: Implement me'
 }
+
+testAndPublish([ubuntu: testUbuntu, windows: testWindows])
 
 def publishToPypi() {
     try {
