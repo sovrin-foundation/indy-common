@@ -33,4 +33,4 @@ def testWindows = {
     echo 'TODO: Implement me'
 }
 
-testAndPublish(name, [ubuntu: testUbuntu, windows: testWindows])
+testAndPublish(currentBuild, name, [ubuntu: testUbuntu, windows: testWindows])
