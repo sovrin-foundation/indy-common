@@ -8,6 +8,8 @@ try {
 
 // ALL BRANCHES: master, stable, PRs
 
+    test()
+
     // 1. TEST
     stage('Test') {
         parallel 'ubuntu-test':{
@@ -25,6 +27,11 @@ try {
     }
 
 // MASTER AND STABLE ONLY
+
+    if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'stable') {
+        echo "Ledger ${env.BRANCH_NAME}: skip publishing"
+        return
+    }
 
     // 2. PUBLISH TO PYPI
     stage('Publish to pypi') {
