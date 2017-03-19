@@ -32,7 +32,9 @@ try {
     // 2. PUBLISH TO PYPI
     stage('Publish to pypi') {
         node('ubuntu') {
-            version = publishToPypi()
+            withCredentials([file(credentialsId: 'pypi_credentials', variable: 'FILE')]) {
+                publishToPypi('sovrin-common', "$FILE")
+            }
         }
     }
 
