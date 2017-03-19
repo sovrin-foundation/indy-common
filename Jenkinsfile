@@ -137,14 +137,17 @@ def extractVersion(match) {
     return extractVersionFromText(match, text)
 }
 
+def getUserUid() {
+    return sh(returnStdout: true, script: 'id -u').trim()
+}
+
 def testUbuntu() {
     try {
         echo 'Ubuntu Test: Checkout csm'
         checkout scm
 
         echo 'Ubuntu Test: Build docker image'
-        sh 'ln -sf ci/ubuntu.dockerfile Dockerfile'
-        def testEnv = docker.build 'sovrin-common-test'
+        def testEnv = docker.build('sovrin-common-test', "--build-arg uid=${getUserUid()} -f ci/ubuntu.dockerfile ci")
 
         testEnv.inside {
             echo 'Ubuntu Test: Install dependencies'
