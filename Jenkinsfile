@@ -39,7 +39,7 @@ def testWindows = {
     echo 'TODO: Implement me'
 }
 
-testAndPublish()
+testAndPublish(name, [ubuntu: testUbuntu, windows: testWindows])
 
 def publishToPypi() {
     try {
