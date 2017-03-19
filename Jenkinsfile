@@ -14,19 +14,13 @@ def testUbuntu = {
 
         testEnv.inside {
             echo 'Ubuntu Test: Install dependencies'
-            
-            plenum = helpers.extractVersion('plenum')
-            sh "/home/sovrin/test/bin/pip install ${plenum}"
-            sh '/home/sovrin/test/bin/python setup.py install'
-            sh '/home/sovrin/test/bin/pip install pytest'
+
+            def deps = []
+            deps.push(helpers.extractVersion('plenum'))
+            testHelpers.installDeps(deps)
 
             echo 'Ubuntu Test: Test'
-            try {
-                sh '/home/sovrin/test/bin/python -m pytest --junitxml=test-result.xml'
-            }
-            finally {
-                junit 'test-result.xml'
-            }
+            testHelpers.testJunit()
         }
     }
     finally {
