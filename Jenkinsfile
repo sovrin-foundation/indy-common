@@ -15,7 +15,7 @@ def testUbuntu = {
         testEnv.inside {
             echo 'Ubuntu Test: Install dependencies'
             
-            plenum = extractVersion('plenum')
+            plenum = helpers.extractVersion('plenum')
             sh "/home/sovrin/test/bin/pip install ${plenum}"
             sh '/home/sovrin/test/bin/python setup.py install'
             sh '/home/sovrin/test/bin/pip install pytest'
