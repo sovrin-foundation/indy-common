@@ -41,33 +41,6 @@ def testWindows = {
 
 testAndPublish(name, [ubuntu: testUbuntu, windows: testWindows])
 
-def publishToPypi() {
-    try {
-        echo 'Publish to pypi: Checkout csm'
-        checkout scm
-
-        echo 'Publish to pypi: Prepare package'
-        sh 'chmod -R 777 ci'
-        //gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-        version = sh(returnStdout: true, script: 'ci/get-package-version.sh sovrin_common $BUILD_NUMBER').trim()
-
-        sh 'ci/prepare-package.sh . $BUILD_NUMBER'
-
-        echo 'Publish to pypi: Publish'
-        withCredentials([file(credentialsId: 'pypi_credentials', variable: 'FILE')]) {
-            sh 'ln -sf $FILE $HOME/.pypirc'
-            sh 'ci/upload-pypi-package.sh .'
-            sh 'rm -f $HOME/.pypirc'
-        }
-
-        return version
-    }
-    finally {
-        echo 'Publish to pypi: Cleanup'
-        step([$class: 'WsCleanup'])
-    }
-}
-
 def buildDeb() {
     try {
         echo 'Build deb packages: Checkout csm'
@@ -103,22 +76,6 @@ def buildMsi() {
     echo 'TODO: Implement me'
 }
 
-def ubuntuSystemTests() {
-    echo 'TODO: Implement me'
-}
-
-def windowsSystemTests() {
-    echo 'TODO: Implement me'
-}
-
-def notifyQA(version) {
-    emailext (
-        subject: "New release candidate 'sovrin-common-$version' is waiting for approval",
-        body: "Please go to ${BUILD_URL}console and verify the build",
-        to: 'alexander.sherbakov@dsr-company.com'
-    )
-}
-
 def approveQA() {
     def qaApproval
     try {
@@ -131,33 +88,4 @@ def approveQA() {
         echo 'QA approval denied'
     }
     return qaApproval
-}
-
-
-def notifyFail() {
-    emailext (
-        body: '$DEFAULT_CONTENT',
-        recipientProviders: [
-            [$class: 'CulpritsRecipientProvider'],
-            [$class: 'DevelopersRecipientProvider'],
-            [$class: 'RequesterRecipientProvider']
-        ],
-        replyTo: '$DEFAULT_REPLYTO',
-        subject: '$DEFAULT_SUBJECT',
-        to: '$DEFAULT_RECIPIENTS'
-       )
-}
-
-def notifySuccess() {
-    emailext (
-        body: '$DEFAULT_CONTENT',
-        recipientProviders: [
-            [$class: 'CulpritsRecipientProvider'],
-            [$class: 'DevelopersRecipientProvider'],
-            [$class: 'RequesterRecipientProvider']
-        ],
-        replyTo: '$DEFAULT_REPLYTO',
-        subject: "New ${BRANCH_NAME} build 'sovrin-common-$version'",
-        to: '$DEFAULT_RECIPIENTS'
-       )
 }
