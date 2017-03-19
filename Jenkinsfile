@@ -1,5 +1,7 @@
 #!groovy​
 
+@Library('SovrinHelpers') _
+
 def success = true
 
 try {
@@ -23,11 +25,6 @@ try {
     }
 
 // MASTER AND STABLE ONLY
-
-    if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'stable') {
-        echo "Ledger ${env.BRANCH_NAME}: skip publishing"
-        return
-    }
 
     // 2. PUBLISH TO PYPI
     stage('Publish to pypi') {
