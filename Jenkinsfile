@@ -21,7 +21,7 @@ def getUserUid() {
     return sh(returnStdout: true, script: 'id -u').trim()
 }
 
-def testUbuntu() {
+def testUbuntu = {
     try {
         echo 'Ubuntu Test: Checkout csm'
         checkout scm
@@ -52,7 +52,7 @@ def testUbuntu() {
     }
 }
 
-def testWindows() {
+def testWindows = {
     echo 'TODO: Implement me'
 }
 
