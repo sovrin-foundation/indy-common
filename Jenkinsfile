@@ -2,22 +2,7 @@
 
 @Library('SovrinHelpers') _
 
-@NonCPS
-def extractVersionFromText(match, text) {
-    def pattern = /.*(${match}[-a-z=\\.0-9]*)'/
-    def matcher = (text =~ pattern)
-    return matcher[0][1]
-}
-
-def extractVersion(match) {
-    def text = sh(returnStdout: true, script: "grep \"${match}[-a-z=\\.0-9]*'\" setup.py").trim()
-    echo "${match}Version -> matching against ${text}"
-    return extractVersionFromText(match, text)
-}
-
-def getUserUid() {
-    return sh(returnStdout: true, script: 'id -u').trim()
-}
+def name = 'sovrin-common'
 
 def testUbuntu = {
     try {
@@ -54,7 +39,7 @@ def testWindows = {
     echo 'TODO: Implement me'
 }
 
-testAndPublish([ubuntu: testUbuntu, windows: testWindows])
+testAndPublish()
 
 def publishToPypi() {
     try {
