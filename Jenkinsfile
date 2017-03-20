@@ -10,17 +10,17 @@ def testUbuntu = {
         checkout scm
 
         echo 'Ubuntu Test: Build docker image'
-        def testEnv = dockerHelpers.build(name)
+        def testEnv = helpers.docker.build(name)
 
         testEnv.inside {
             echo 'Ubuntu Test: Install dependencies'
 
             def deps = []
-            deps.push(helpers.extractVersion('plenum'))
-            testHelpers.installDeps(deps)
+            deps.push(helpers.common.extractVersion('plenum'))
+            helpers.test.installDeps(deps)
 
             echo 'Ubuntu Test: Test'
-            testHelpers.testJunit()
+            helpers.test.testJunit()
         }
     }
     finally {
@@ -33,4 +33,4 @@ def testWindows = {
     echo 'TODO: Implement me'
 }
 
-testAndPublish(name, [ubuntu: testUbuntu, windows: testWindows])
+scripts.testAndPublish(name, [ubuntu: testUbuntu, windows: testWindows])
