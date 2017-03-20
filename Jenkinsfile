@@ -33,4 +33,10 @@ def testWindows = {
     echo 'TODO: Implement me'
 }
 
-testAndPublish(name, [ubuntu: testUbuntu, windows: testWindows])
+def testWindowsNoDocker = {
+    echo 'TODO: Implement me'
+}
+
+
+
+testAndPublish(name, [ubuntu: testUbuntu, windows: testWindows, windowsNoDocker: testWindowsNoDocker])
