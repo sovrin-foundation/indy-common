@@ -1,7 +1,7 @@
 from plenum.common.log import getlogger
 from plenum.common.roles import Roles
-from plenum.common.txn import TRUSTEE, TGB, STEWARD, TRUST_ANCHOR
-from sovrin_common.txn import OWNER
+from plenum.common.constants import TRUSTEE, TGB, STEWARD, TRUST_ANCHOR, NYM, NODE
+from sovrin_common.constants import OWNER, POOL_UPGRADE
 
 logger = getlogger()
 
@@ -10,41 +10,41 @@ class Authoriser:
     ValidRoles = (TRUSTEE, TGB, STEWARD, TRUST_ANCHOR, None)
 
     AuthMap = {
-        'NYM_role__{}'.format(TRUSTEE):
+        '{}_role__{}'.format(NYM, TRUSTEE):
             {TRUSTEE: [],},
-        'NYM_role__{}'.format(TGB):
+        '{}_role__{}'.format(NYM, TGB):
             {TRUSTEE: [],},
-        'NYM_role__{}'.format(STEWARD):
+        '{}_role__{}'.format(NYM, STEWARD):
             {TRUSTEE: [], STEWARD: []},
-        'NYM_role__{}'.format(TRUST_ANCHOR):
+        '{}_role__{}'.format(NYM, TRUST_ANCHOR):
             {TRUSTEE: [], STEWARD: []},
-        'NYM_role__':
+        '{}_role__'.format(NYM):
             {TRUSTEE: [], TGB: [], STEWARD: [], TRUST_ANCHOR: []},
-        'NYM_role_{}_'.format(TRUSTEE):
+        '{}_role_{}_'.format(NYM, TRUSTEE):
             {TRUSTEE: []},
-        'NYM_role_{}_'.format(TGB):
+        '{}_role_{}_'.format(NYM, TGB):
             {TRUSTEE: []},
-        'NYM_role_{}_'.format(STEWARD):
+        '{}_role_{}_'.format(NYM, STEWARD):
             {TRUSTEE: []},
-        'NYM_role_{}_'.format(TRUST_ANCHOR):
+        '{}_role_{}_'.format(NYM, TRUST_ANCHOR):
             {TRUSTEE: []},
-        'NYM_verkey_<any>_<any>':
+        '{}_verkey_<any>_<any>'.format(NYM):
             {r: [OWNER] for r in ValidRoles},
-        'NODE_services__[VALIDATOR]':
+        '{}_services__[VALIDATOR]'.format(NODE):
             {STEWARD: [OWNER, ]},
-        'NODE_services_[VALIDATOR]_[]':
+        '{}_services_[VALIDATOR]_[]'.format(NODE):
             {TRUSTEE: [], STEWARD: [OWNER, ]},
-        'NODE_node_ip_<any>_<any>':
+        '{}_node_ip_<any>_<any>'.format(NODE):
             {STEWARD: [OWNER, ]},
-        'NODE_node_port_<any>_<any>':
+        '{}_node_port_<any>_<any>'.format(NODE):
             {STEWARD: [OWNER, ]},
-        'NODE_client_ip_<any>_<any>':
+        '{}_client_ip_<any>_<any>'.format(NODE):
             {STEWARD: [OWNER, ]},
-        'NODE_client_port_<any>_<any>':
+        '{}_client_port_<any>_<any>'.format(NODE):
             {STEWARD: [OWNER, ]},
-        'POOL_UPGRADE_action__start':
+        '{}_action__start'.format(POOL_UPGRADE):
             {TRUSTEE: [], TGB: []},
-        'POOL_UPGRADE_action_start_cancel':
+        '{}_action_start_cancel'.format(POOL_UPGRADE):
             {TRUSTEE: [], TGB: []}
     }
 

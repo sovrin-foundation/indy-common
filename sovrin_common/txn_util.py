@@ -1,102 +1,10 @@
 import json
 from collections import OrderedDict
 
-from plenum.common.txn import TXN_TYPE, TARGET_NYM, ORIGIN, DATA, TXN_ID, TXN_TIME, \
-    RAW, ENC, HASH, NAME, VERSION, TYPE, POOL_TXN_TYPES, ALIAS, \
-    NYM, VERKEY, TRUSTEE, STEWARD, TRUST_ANCHOR
+from plenum.common.constants import TXN_TYPE, TARGET_NYM, DATA, ENC, RAW, HASH, ALIAS, TXN_ID, TRUSTEE, STEWARD, \
+    TRUST_ANCHOR, TXN_TIME, VERKEY
 from plenum.common.types import f
-
-ROLE = 'role'
-NONCE = 'nonce'
-ATTRIBUTES = "attributes"
-ATTR_NAMES = "attr_names"
-ACTION = 'action'
-SCHEDULE = 'schedule'
-TIMEOUT = 'timeout'
-SHA256 = 'sha256'
-START = 'start'
-CANCEL = 'cancel'
-COMPLETE = 'complete'
-FAIL = 'fail'
-JUSTIFICATION = 'justification'
-
-NULL = 'null'
-OWNER = '<owner>'
-
-LAST_TXN = "lastTxn"
-TXNS = "Txns"
-
-ENC_TYPE = "encType"
-SKEY = "secretKey"
-REF = "ref"
-PRIMARY = "primary"
-REVOCATION = "revocation"
-
-allOpKeys = (TXN_TYPE, TARGET_NYM, VERKEY, ORIGIN, ROLE, DATA, NONCE, REF, RAW,
-             ENC, HASH, ALIAS, ACTION, SCHEDULE, TIMEOUT, SHA256, START, CANCEL,
-             NAME, VERSION, JUSTIFICATION)
-
-reqOpKeys = (TXN_TYPE,)
-
-# Attribute Names
-ENDPOINT = "endpoint"
-
-# client transaction types
-NYM = NYM
-ATTRIB = "ATTRIB"
-IDPROOF = "IDPROOF"
-ASSIGN_AGENT = "ASSIGN_AGENT"
-ADD_TRUST_ANCHOR = "ADD_TRUST_ANCHOR"
-ADD_AGENT = "ADD_AGENT"
-DISCLO = "DISCLO"
-GET_ATTR = "GET_ATTR"
-GET_NYM = "GET_NYM"
-GET_TXNS = "GET_TXNS"
-GET_TXN = "GET_TXN"
-SCHEMA = "SCHEMA"
-GET_SCHEMA = "GET_SCHEMA"
-ADD_PKI = "ADD_PKI"
-REQ_CRED = "REQ_CRED"
-GET_NONCE = "GET_NONCE"
-VER_PRF = "VER_PRF"
-ISSUER_KEY = "ISSUER_KEY"
-GET_ISSUER_KEY = "GET_ISSUER_KEY"
-POOL_UPGRADE = 'POOL_UPGRADE'
-NODE_UPGRADE = 'NODE_UPGRADE'
-
-
-# Temp for demo
-GEN_CRED = "GEN_CRED"
-
-openTxns = (GET_NYM, GET_ATTR, GET_SCHEMA, GET_ISSUER_KEY)
-
-
-# TXN_TYPE -> (requireds, optionals)
-fields = {NYM: ([TARGET_NYM], [ROLE]),
-          ATTRIB: ([], [RAW, ENC, HASH]),
-          SCHEMA: ([NAME, VERSION, ATTR_NAMES], [TYPE, ]),
-          GET_SCHEMA: ([], []),
-          ISSUER_KEY: ([REF, DATA]),
-          GET_ISSUER_KEY: ([REF, ORIGIN])
-          }
-
-CONFIG_TXN_TYPES = {POOL_UPGRADE, NODE_UPGRADE}
-IDENTITY_TXN_TYPES = {NYM,
-                      ATTRIB,
-                      IDPROOF,
-                      DISCLO,
-                      GET_ATTR,
-                      GET_NYM,
-                      GET_TXNS,
-                      SCHEMA,
-                      GET_SCHEMA,
-                      ISSUER_KEY,
-                      GET_ISSUER_KEY}
-
-validTxnTypes = set()
-validTxnTypes.update(POOL_TXN_TYPES)
-validTxnTypes.update(IDENTITY_TXN_TYPES)
-validTxnTypes.update(CONFIG_TXN_TYPES)
+from sovrin_common.constants import NYM, ATTRIB, GET_ATTR, ROLE, REF
 
 
 def AddNym(target, role=None):
@@ -112,7 +20,6 @@ def GetAttr(target, attrName, role=None):
     queryData = json.dumps({"name": attrName})
     return newTxn(txnType=GET_ATTR, target=target, role=role,
                   data=queryData)
-
 
 # TODO: Change name to txn or some thing else after discussion
 def newTxn(txnType, target=None, data=None, enc=None, raw=None,
@@ -218,4 +125,3 @@ def getTxnOrderedFields():
         (ROLE, (str, str)),
         (REF, (str, str))
     ])
-
