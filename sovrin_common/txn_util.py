@@ -2,9 +2,9 @@ import json
 from collections import OrderedDict
 
 from plenum.common.constants import TXN_TYPE, TARGET_NYM, DATA, ENC, RAW, HASH, ALIAS, TXN_ID, TRUSTEE, STEWARD, \
-    TRUST_ANCHOR, TXN_TIME, VERKEY
+    TXN_TIME, VERKEY
 from plenum.common.types import f
-from sovrin_common.constants import NYM, ATTRIB, GET_ATTR, ROLE, REF
+from sovrin_common.constants import NYM, ATTRIB, GET_ATTR, ROLE, REF, TRUST_ANCHOR
 
 
 def AddNym(target, role=None):

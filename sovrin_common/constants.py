@@ -3,6 +3,7 @@ from typing import NamedTuple
 from plenum.common.constants import TXN_TYPE, TARGET_NYM, ORIGIN, DATA, RAW, ENC, HASH, NAME, VERSION, TYPE, \
     POOL_TXN_TYPES, ALIAS, \
     VERKEY
+from sovrin_common.roles import Roles
 from sovrin_common.transactions import SovrinTransactions
 
 Environment = NamedTuple("Environment", [
@@ -44,6 +45,10 @@ reqOpKeys = (TXN_TYPE,)
 
 # Attribute Names
 ENDPOINT = "endpoint"
+
+# Roles
+TRUST_ANCHOR = Roles.TRUST_ANCHOR.value
+TGB = Roles.TGB.value
 
 # client transaction types
 NYM = SovrinTransactions.NYM.value

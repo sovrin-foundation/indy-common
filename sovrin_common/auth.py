@@ -1,7 +1,7 @@
+from plenum.common.constants import TRUSTEE, STEWARD, NODE
 from plenum.common.log import getlogger
-from plenum.common.roles import Roles
-from plenum.common.constants import TRUSTEE, TGB, STEWARD, TRUST_ANCHOR, NYM, NODE
-from sovrin_common.constants import OWNER, POOL_UPGRADE
+from sovrin_common.constants import OWNER, POOL_UPGRADE, TGB, TRUST_ANCHOR, NYM
+from sovrin_common.roles import Roles
 
 logger = getlogger()
 
