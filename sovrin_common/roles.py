@@ -7,10 +7,11 @@ from plenum.common.roles import Roles
 class Roles(Enum):
     #  These numeric constants CANNOT be changed once they have been used,
     #  because that would break backwards compatibility with the ledger
+    #  Also the numeric constants CANNOT collide with the roles in plenum
     TRUSTEE = Roles.TRUSTEE.value
-    TGB = "1"
     STEWARD = Roles.STEWARD.value
-    TRUST_ANCHOR = "3"
+    TGB = "100"
+    TRUST_ANCHOR = "101"
 
     def __str__(self):
         return self.name

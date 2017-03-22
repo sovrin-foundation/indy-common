@@ -6,8 +6,8 @@ from sovrin_common.roles import Roles
 def testRolesAreEncoded():
     assert STEWARD == "2"
     assert TRUSTEE == "0"
-    assert TGB == "1"
-    assert TRUST_ANCHOR == "3"
+    assert TGB == "100"
+    assert TRUST_ANCHOR == "101"
 
 
 def testRolesEnumDecoded():
@@ -20,5 +20,5 @@ def testRolesEnumDecoded():
 def testRolesEnumEncoded():
     assert Roles.STEWARD.value == "2"
     assert Roles.TRUSTEE.value == "0"
-    assert Roles.TGB.value == "1"
-    assert Roles.TRUST_ANCHOR.value == "3"
+    assert Roles.TGB.value == "100"
+    assert Roles.TRUST_ANCHOR.value == "101"

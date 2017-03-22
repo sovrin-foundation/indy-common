@@ -51,6 +51,7 @@ TRUST_ANCHOR = Roles.TRUST_ANCHOR.value
 TGB = Roles.TGB.value
 
 # client transaction types
+NODE = SovrinTransactions.NODE.value
 NYM = SovrinTransactions.NYM.value
 ATTRIB = SovrinTransactions.ATTRIB.value
 SCHEMA = SovrinTransactions.SCHEMA.value
