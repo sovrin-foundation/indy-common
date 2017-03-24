@@ -11,11 +11,11 @@ class Authoriser:
 
     AuthMap = {
         '{}_role__{}'.format(NYM, TRUSTEE):
-            {TRUSTEE: [],},
+            {TRUSTEE: []},
         '{}_role__{}'.format(NYM, TGB):
-            {TRUSTEE: [],},
+            {TRUSTEE: []},
         '{}_role__{}'.format(NYM, STEWARD):
-            {TRUSTEE: [], STEWARD: []},
+            {TRUSTEE: []},
         '{}_role__{}'.format(NYM, TRUST_ANCHOR):
             {TRUSTEE: [], STEWARD: []},
         '{}_role__'.format(NYM):
