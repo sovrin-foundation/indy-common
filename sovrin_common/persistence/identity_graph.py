@@ -9,17 +9,16 @@ import pyorient
 from ledger.util import F
 from plenum.common.error import fault
 from plenum.common.log import getlogger
-from plenum.common.txn import TXN_TYPE, TYPE, IP, PORT, KEYS, NAME, VERSION, \
-    DATA, RAW, ENC, HASH, ORIGIN, VERKEY, TRUSTEE, TGB, STEWARD, TRUST_ANCHOR
+from plenum.common.constants import TXN_TYPE, TYPE, IP, PORT, KEYS, NAME, VERSION, \
+    DATA, RAW, ENC, HASH, ORIGIN, VERKEY, TRUSTEE, STEWARD, TXN_ID, TXN_TIME, NYM_KEY
 from plenum.common.types import f
 from plenum.common.util import error
 from plenum.persistence.orientdb_graph_store import OrientDbGraphStore
 from plenum.server.node import Node
 from sovrin_common.auth import Authoriser
 
-from sovrin_common.txn import NYM, TXN_ID, TARGET_NYM, \
-    ROLE, REF, TXN_TIME, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY
-
+from sovrin_common.constants import TARGET_NYM, \
+    ROLE, REF, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY, NYM, TRUST_ANCHOR, TGB
 
 logger = getlogger()
 
@@ -27,13 +26,13 @@ MIN_TXN_TIME = time.mktime(datetime.datetime(2000, 1, 1).timetuple())
 
 
 class Vertices:
-    Nym = NYM
+    Nym = "NYM"
     Attribute = "Attribute"
     Schema = "Schema"
     IssuerKey = "IssuerKey"
 
     _Properties = {
-        Nym: (NYM, VERKEY, TXN_ID, ROLE, F.seqNo.name),
+        Nym: (NYM_KEY, VERKEY, TXN_ID, ROLE, F.seqNo.name),
         Attribute: (RAW, ENC, HASH),
         Schema: (TYPE, ATTR_NAMES),
         IssuerKey: (REF, DATA)
@@ -97,14 +96,14 @@ class IdentityGraph(OrientDbGraphStore):
     # Creates a vertex class which has a property called `nym` with a unique
     # index on it
     def createUniqueNymVertexClass(self, className, properties: Dict=None):
-        d = {NYM: "string",
+        d = {NYM_KEY: "string",
              VERKEY: "string"}
         if properties:
             properties.update(d)
         else:
             properties = d
         self.createVertexClass(className, properties)
-        self.store.createUniqueIndexOnClass(className, NYM)
+        self.store.createUniqueIndexOnClass(className, Vertices.Nym)
 
     # Creates an edge class which has a property called `txnId` with a unique
     # index on it
@@ -193,12 +192,12 @@ class IdentityGraph(OrientDbGraphStore):
         return self.getEntityByUniqueAttr(edgeClassName, TXN_ID, txnId)
 
     def getAddsNymEdge(self, nym):
-        return self.getEntityByUniqueAttr(Edges.AddsNym, NYM, nym)
+        return self.getEntityByUniqueAttr(Edges.AddsNym, NYM_KEY, nym)
 
     def addNym(self, txnId, nym, verkey, role, frm=None, reference=None,
                seqNo=None):
         kwargs = {
-            NYM: nym,
+            NYM_KEY: nym,
             TXN_ID: txnId,  # # Need to have txnId as a property for cases
             # where we dont know the trust anchor of this nym or its a genesis nym
         }
@@ -220,10 +219,10 @@ class IdentityGraph(OrientDbGraphStore):
             logger.debug("frm not available while adding nym")
         else:
             frmV = "(select from {} where {} = '{}')".format(Vertices.Nym,
-                                                             NYM,
+                                                             NYM_KEY,
                                                              frm)
             toV = "(select from {} where {} = '{}')".format(Vertices.Nym,
-                                                            NYM,
+                                                            NYM_KEY,
                                                             nym)
 
             self.createEdge(Edges.AddsNym, frmV, toV, **kwargs)
@@ -249,7 +248,7 @@ class IdentityGraph(OrientDbGraphStore):
         elif hash:
             attrVertex = self.createVertex(Vertices.Attribute, hash=hash)
 
-        frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM,
+        frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM_KEY,
                                                         frm)
         kwargs = {
             TARGET_NYM: to,
@@ -257,7 +256,7 @@ class IdentityGraph(OrientDbGraphStore):
         }
         self.createEdge(Edges.AddsAttribute, frm, attrVertex._rid, **kwargs)
         if to:
-            to = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM,
+            to = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM_KEY,
                                                            to)
             kwargs = {
                 TXN_ID: txnId
@@ -271,7 +270,7 @@ class IdentityGraph(OrientDbGraphStore):
             ATTR_NAMES: attrNames
         }
         vertex = self.createVertex(Vertices.Schema, **kwargs)
-        frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM,
+        frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM_KEY,
                                                         frm)
         kwargs = {
             TXN_ID: txnId,
@@ -286,7 +285,7 @@ class IdentityGraph(OrientDbGraphStore):
             REF: reference
         }
         vertex = self.createVertex(Vertices.IssuerKey, **kwargs)
-        frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM,
+        frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM_KEY,
                                                         frm)
         kwargs = {
             TXN_ID: txnId,
@@ -298,12 +297,12 @@ class IdentityGraph(OrientDbGraphStore):
             TXN_ID: txnId,
             F.seqNo.name: seqNo
         })
-        self.updateEntityWithUniqueId(Vertices.Nym, NYM, nym, **kwargs)
+        self.updateEntityWithUniqueId(Vertices.Nym, NYM_KEY, nym, **kwargs)
 
     def getRawAttrs(self, frm, *attrNames):
         cmd = 'select expand(outE("{}").inV("{}")) from {} where {}="{}"'.\
             format(Edges.HasAttribute, Vertices.Attribute, Vertices.Nym,
-                   NYM, frm)
+                   NYM_KEY, frm)
         allAttrsRecords = self.client.command(cmd)
         attrVIds = [a._rid for a in allAttrsRecords]
         seqNos = {}
@@ -324,7 +323,7 @@ class IdentityGraph(OrientDbGraphStore):
     def getSchema(self, frm, name, version):
         # TODO: Can this query be made similar to get attribute?
         cmd = "select outV('{}')[{}='{}'], expand(inV('{}')) from {} where " \
-              "name = '{}' and version = '{}'".format(Vertices.Nym, NYM, frm,
+              "name = '{}' and version = '{}'".format(Vertices.Nym, NYM_KEY, frm,
                                                       Vertices.Schema,
                                                       Edges.AddsSchema, name,
                                                       version)
@@ -347,7 +346,7 @@ class IdentityGraph(OrientDbGraphStore):
     def getIssuerKeys(self, frm, ref):
         cmd = "select expand(outE('{}').inV('{}')) from {} where " \
               "{} = '{}'".format(Edges.HasIssuerKey, Vertices.IssuerKey,
-                                 Vertices.Nym, NYM, frm)
+                                 Vertices.Nym, NYM_KEY, frm)
         haystack = self.client.command(cmd)
         needle = None
         if haystack:
@@ -375,10 +374,10 @@ class IdentityGraph(OrientDbGraphStore):
         :return:
         """
         if not role:
-            return self.getEntityByUniqueAttr(Vertices.Nym, NYM, nym)
+            return self.getEntityByUniqueAttr(Vertices.Nym, NYM_KEY, nym)
         else:
             return self.getEntityByAttrs(Vertices.Nym, {
-                NYM: nym,
+                NYM_KEY: nym,
                 ROLE: role
             })
 
@@ -425,8 +424,8 @@ class IdentityGraph(OrientDbGraphStore):
     def getTrustAnchorFor(self, nym):
         trustAnchor = self.client.command("select expand (out) from {} where "
                                       "{} = '{}'".format(Edges.AddsNym,
-                                                         NYM, nym))
-        return None if not trustAnchor else trustAnchor[0].oRecordData.get(NYM)
+                                                         NYM_KEY, nym))
+        return None if not trustAnchor else trustAnchor[0].oRecordData.get(NYM_KEY)
 
     def getOwnerFor(self, nym):
         nymV = self.getNym(nym)
@@ -464,8 +463,8 @@ class IdentityGraph(OrientDbGraphStore):
             }
             frm, to = self.store.getByRecordIds(edgeData['out'].get(),
                                                 edgeData['in'].get())
-            result[f.IDENTIFIER.nm] = frm.oRecordData.get(NYM)
-            result[TARGET_NYM] = to.oRecordData.get(NYM)
+            result[f.IDENTIFIER.nm] = frm.oRecordData.get(NYM_KEY)
+            result[TARGET_NYM] = to.oRecordData.get(NYM_KEY)
             verkey = to.oRecordData.get(VERKEY)
             if verkey is not None:
                 result[VERKEY] = verkey
@@ -518,7 +517,7 @@ class IdentityGraph(OrientDbGraphStore):
                     if r.oRecordData:
                         oRecordData = self.cleanKeyNames(r.oRecordData)
                         out[oRecordData[F.seqNo.name]] = self.makeResult(
-                            NYM, oRecordData)
+                            NYM_KEY, oRecordData)
                 return out
 
         result = reduce(lambda d1, d2: {**d1, **d2},
@@ -546,9 +545,9 @@ class IdentityGraph(OrientDbGraphStore):
             out = {}
             for r in result:
                 if r.oRecordData:
-                    r.oRecordData[TARGET_NYM] = r.oRecordData.pop(NYM)
+                    r.oRecordData[TARGET_NYM] = r.oRecordData.pop(NYM_KEY)
                     out[r.oRecordData[F.seqNo.name]] = self.makeResult(
-                        NYM, r.oRecordData)
+                        NYM_KEY, r.oRecordData)
             return out
 
     def _updateTxnIdEdgeWithTxn(self, txnId, edgeClass, txn, properties=None):
@@ -622,10 +621,28 @@ class IdentityGraph(OrientDbGraphStore):
             fault(ex, "An exception was raised while adding attribute: {}".
                   format(ex))
 
+    def parseTxnData(self, data):
+        """
+        parse stringified data to json
+        :param data: stringfied data
+        :return:
+        """
+        try:
+            return json.loads(data)
+        except Exception as ex:
+            fault(ex, "Cannot convert string data {} to JSON".format(data))
+            return
+
     def addSchemaTxnToGraph(self, txn):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
+
+        if isinstance(data, str):
+            data = self.parseTxnData(data)
+            if not data:
+                return
+
         try:
             self.addSchema(
                 frm=origin,
@@ -638,10 +655,17 @@ class IdentityGraph(OrientDbGraphStore):
         except Exception as ex:
             fault(ex, "Error adding cred def to orientdb")
 
+
     def addIssuerKeyTxnToGraph(self, txn):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
+
+        if isinstance(data, str):
+            data = self.parseTxnData(data)
+            if not data:
+                return
+
         try:
             self.addIssuerKey(
                 frm=origin,

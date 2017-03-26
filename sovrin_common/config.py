@@ -2,7 +2,7 @@ import os
 import logging
 from collections import OrderedDict
 
-from plenum.common.txn import ClientBootStrategy
+from plenum.common.constants import ClientBootStrategy
 from sovrin_common.constants import Environment
 
 nodeReg = OrderedDict([

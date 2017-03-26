@@ -2,10 +2,10 @@ from copy import deepcopy
 from hashlib import sha256
 
 from plenum.common.request import Request as PRequest
-from plenum.common.txn import TXN_TYPE, RAW, ENC, HASH
+from plenum.common.constants import TXN_TYPE, RAW, ENC, HASH
 from plenum.common.types import OPERATION
 
-from sovrin_common.txn import ATTRIB
+from sovrin_common.constants import ATTRIB
 
 
 class Request(PRequest):

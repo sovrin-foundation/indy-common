@@ -1,9 +1,9 @@
-from plenum.common.txn import TARGET_NYM, TXN_TYPE, NYM, ROLE, VERKEY
+from plenum.common.constants import TARGET_NYM, TXN_TYPE, NYM, ROLE, VERKEY
 from plenum.common.types import Identifier
 from sovrin_common.auth import Authoriser
 
 from sovrin_common.generates_request import GeneratesRequest
-from sovrin_common.txn import GET_NYM, NULL
+from sovrin_common.constants import GET_NYM, NULL
 from sovrin_common.types import Request
 
 
