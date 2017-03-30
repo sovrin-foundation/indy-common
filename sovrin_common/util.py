@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import Tuple, Union
+from typing import Tuple, Union, TypeVar, List, Callable
 
 import libnacl.secret
 from base58 import b58decode
@@ -100,3 +100,19 @@ def ensureReqCompleted(loop, reqKey, client, clbk=None, pargs=None, kwargs=None,
 
 def getNonceForProof(nonce):
     return int(nonce, 16)
+
+
+T = TypeVar('T')
+
+
+def getIndex(predicateFn: Callable[[T], bool], items: List[T]) -> int:
+    """
+    Finds the index of an item in list, which satisfies predicate
+    :param predicateFn: predicate function to run on items of list
+    :param items: list of tuples
+    :return: first index for which predicate function returns True
+    """
+    try:
+        return next(i for i, v in enumerate(items) if predicateFn(v))
+    except StopIteration:
+        return -1

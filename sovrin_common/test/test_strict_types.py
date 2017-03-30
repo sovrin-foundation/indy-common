@@ -63,4 +63,3 @@ def testWholeClassInvalidReturnType(t):
 def testWholeClassValidInputAndReturn(t):
     t.takesStr('1')
     t.takesInt(1)
-

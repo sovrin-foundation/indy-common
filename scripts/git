@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+# set -e
 
 dirs=( "sovrin-common" "sovrin-client" "sovrin-node" "plenum" "anoncreds" "ledger" )
 
