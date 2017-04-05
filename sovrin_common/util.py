@@ -7,7 +7,7 @@ from base58 import b58decode
 from plenum.common.signing import serializeMsg
 from plenum.common.types import f
 from plenum.common.util import isHex, error, cryptonymToHex
-from raet.nacling import Verifier
+from stp_core.crypto.nacl_wrappers import Verifier
 
 
 def getMsgWithoutSig(msg, sigFieldName=f.SIG.nm):

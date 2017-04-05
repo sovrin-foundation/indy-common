@@ -8,7 +8,7 @@ from typing import Dict, Optional
 import pyorient
 from ledger.util import F
 from plenum.common.error import fault
-from plenum.common.log import getlogger
+from stp_core.common.log import getlogger
 from plenum.common.constants import TXN_TYPE, TYPE, IP, PORT, KEYS, NAME, VERSION, \
     DATA, RAW, ENC, HASH, ORIGIN, VERKEY, TRUSTEE, STEWARD, TXN_ID, TXN_TIME, NYM_KEY
 from plenum.common.types import f
