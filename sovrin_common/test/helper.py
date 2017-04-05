@@ -1,9 +1,8 @@
 import os
 import shutil
-
 import psutil
-
 from stp_core.common.log import getlogger
+
 
 logger = getlogger()
 
