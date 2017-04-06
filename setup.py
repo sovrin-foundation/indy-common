@@ -48,9 +48,9 @@ setup(
         '': ['*.txt', '*.md', '*.rst', '*.json', '*.conf', '*.html',
              '*.css', '*.ico', '*.png', 'LICENSE', 'LEGAL', '*.sovrin']},
     include_package_data=True,
-    data_files=[(
-        (BASE_DIR, ['data/pool_transactions_sandbox', ])
-    )],
+#    data_files=[(
+#        (BASE_DIR, ['data/pool_transactions_sandbox', ])
+#    )],
     install_requires=['plenum-dev'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
