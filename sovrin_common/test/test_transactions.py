@@ -25,14 +25,14 @@ def testTransactionEnumDecoded():
 
     assert SovrinTransactions.ATTRIB.name == "ATTRIB"
     assert SovrinTransactions.SCHEMA.name == "SCHEMA"
-    assert SovrinTransactions.ISSUER_KEY.name == "ISSUER_KEY"
+    assert SovrinTransactions.CLAIM_DEF.name == "ISSUER_KEY"
 
     assert SovrinTransactions.DISCLO.name == "DISCLO"
     assert SovrinTransactions.GET_ATTR.name == "GET_ATTR"
     assert SovrinTransactions.GET_NYM.name == "GET_NYM"
     assert SovrinTransactions.GET_TXNS.name == "GET_TXNS"
     assert SovrinTransactions.GET_SCHEMA.name == "GET_SCHEMA"
-    assert SovrinTransactions.GET_ISSUER_KEY.name == "GET_ISSUER_KEY"
+    assert SovrinTransactions.GET_CLAIM_DEF.name == "GET_ISSUER_KEY"
     assert SovrinTransactions.POOL_UPGRADE.name == "POOL_UPGRADE"
     assert SovrinTransactions.NODE_UPGRADE.name == "NODE_UPGRADE"
 
@@ -43,13 +43,13 @@ def testTransactionEnumEncoded():
 
     assert SovrinTransactions.ATTRIB.value == "100"
     assert SovrinTransactions.SCHEMA.value == "101"
-    assert SovrinTransactions.ISSUER_KEY.value == "102"
+    assert SovrinTransactions.CLAIM_DEF.value == "102"
 
     assert SovrinTransactions.DISCLO.value == "103"
     assert SovrinTransactions.GET_ATTR.value == "104"
     assert SovrinTransactions.GET_NYM.value == "105"
     assert SovrinTransactions.GET_TXNS.value == "106"
     assert SovrinTransactions.GET_SCHEMA.value == "107"
-    assert SovrinTransactions.GET_ISSUER_KEY.value == "108"
+    assert SovrinTransactions.GET_CLAIM_DEF.value == "108"
     assert SovrinTransactions.POOL_UPGRADE.value == "109"
     assert SovrinTransactions.NODE_UPGRADE.value == "110"

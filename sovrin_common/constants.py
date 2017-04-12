@@ -55,13 +55,13 @@ NODE = SovrinTransactions.NODE.value
 NYM = SovrinTransactions.NYM.value
 ATTRIB = SovrinTransactions.ATTRIB.value
 SCHEMA = SovrinTransactions.SCHEMA.value
-ISSUER_KEY = SovrinTransactions.ISSUER_KEY.value
+ISSUER_KEY = SovrinTransactions.CLAIM_DEF.value
 DISCLO = SovrinTransactions.DISCLO.value
 GET_ATTR = SovrinTransactions.GET_ATTR.value
 GET_NYM = SovrinTransactions.GET_NYM.value
 GET_TXNS = SovrinTransactions.GET_TXNS.value
 GET_SCHEMA = SovrinTransactions.GET_SCHEMA.value
-GET_ISSUER_KEY = SovrinTransactions.GET_ISSUER_KEY.value
+GET_ISSUER_KEY = SovrinTransactions.GET_CLAIM_DEF.value
 
 POOL_UPGRADE = SovrinTransactions.POOL_UPGRADE.value
 NODE_UPGRADE = SovrinTransactions.NODE_UPGRADE.value
