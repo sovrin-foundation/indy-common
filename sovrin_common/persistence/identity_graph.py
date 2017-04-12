@@ -29,13 +29,13 @@ class Vertices:
     Nym = "NYM"
     Attribute = "Attribute"
     Schema = "Schema"
-    IssuerKey = "IssuerKey"
+    ClaimDef = "ClaimDef"
 
     _Properties = {
         Nym: (NYM_KEY, VERKEY, TXN_ID, ROLE, F.seqNo.name),
         Attribute: (RAW, ENC, HASH),
         Schema: (TYPE, ATTR_NAMES),
-        IssuerKey: (REF, DATA)
+        ClaimDef: (REF, DATA)
     }
 
     @classmethod
@@ -52,14 +52,14 @@ class Edges:
     # with someone
     AliasOf = "AliasOf"
     AddsSchema = "AddsSchema"
-    HasIssuerKey = "HasIssuerKey"
+    HasClaimDef = "HasClaimDef"
 
 
 txnEdges = {
         NYM: Edges.AddsNym,
         ATTRIB: Edges.AddsAttribute,
         SCHEMA: Edges.AddsSchema,
-        CLAIM_DEF: Edges.HasIssuerKey
+        CLAIM_DEF: Edges.HasClaimDef
     }
 
 
@@ -84,13 +84,13 @@ class IdentityGraph(OrientDbGraphStore):
             (Vertices.Nym, self.createNymClass),
             (Vertices.Attribute, self.createAttributeClass),
             (Vertices.Schema, self.createSchemaClass),
-            (Vertices.IssuerKey, self.createIssuerKeyClass),
+            (Vertices.ClaimDef, self.createClaimDefClass),
             (Edges.AddsNym, self.createAddsNymClass),
             (Edges.AliasOf, self.createAliasOfClass),
             (Edges.AddsAttribute, self.createAddsAttributeClass),
             (Edges.HasAttribute, self.createHasAttributeClass),
             (Edges.AddsSchema, self.createAddsSchemaClass),
-            (Edges.HasIssuerKey, self.createHasIssuerClass)
+            (Edges.HasClaimDef, self.createHasIssuerClass)
         ]
 
     # Creates a vertex class which has a property called `nym` with a unique
@@ -148,8 +148,8 @@ class IdentityGraph(OrientDbGraphStore):
             TYPE: "string",
         })
 
-    def createIssuerKeyClass(self):
-        self.createVertexClass(Vertices.IssuerKey, properties={
+    def createClaimDefClass(self):
+        self.createVertexClass(Vertices.ClaimDef, properties={
             REF: "string",
             DATA: "string", # JSON
         })
@@ -185,7 +185,7 @@ class IdentityGraph(OrientDbGraphStore):
         self.addEdgeConstraint(Edges.AddsSchema, iN=Vertices.Schema)
 
     def createHasIssuerClass(self):
-        self.createUniqueTxnIdEdgeClass(Edges.HasIssuerKey)
+        self.createUniqueTxnIdEdgeClass(Edges.HasClaimDef)
         self.addEdgeConstraint(Edges.HasAttribute, out=Vertices.Nym)
 
     def getEdgeByTxnId(self, edgeClassName, txnId):
@@ -279,18 +279,18 @@ class IdentityGraph(OrientDbGraphStore):
         }
         self.createEdge(Edges.AddsSchema, frm, vertex._rid, **kwargs)
 
-    def addIssuerKey(self, frm, txnId, data, reference):
+    def addClaimDef(self, frm, txnId, data, reference):
         kwargs = {
             DATA: json.dumps(data),
             REF: reference
         }
-        vertex = self.createVertex(Vertices.IssuerKey, **kwargs)
+        vertex = self.createVertex(Vertices.ClaimDef, **kwargs)
         frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM_KEY,
                                                         frm)
         kwargs = {
             TXN_ID: txnId,
         }
-        self.createEdge(Edges.HasIssuerKey, frm, vertex._rid, **kwargs)
+        self.createEdge(Edges.HasClaimDef, frm, vertex._rid, **kwargs)
 
     def updateNym(self, txnId, nym, seqNo, **kwargs):
         kwargs.update({
@@ -343,9 +343,9 @@ class IdentityGraph(OrientDbGraphStore):
             }
         return None
 
-    def getIssuerKeys(self, frm, ref):
+    def getClaimDef(self, frm, ref):
         cmd = "select expand(outE('{}').inV('{}')) from {} where " \
-              "{} = '{}'".format(Edges.HasIssuerKey, Vertices.IssuerKey,
+              "{} = '{}'".format(Edges.HasClaimDef, Vertices.ClaimDef,
                                  Vertices.Nym, NYM_KEY, frm)
         haystack = self.client.command(cmd)
         needle = None
@@ -357,7 +357,7 @@ class IdentityGraph(OrientDbGraphStore):
             if needle:
                 edgeData = self.client.command(
                     "select expand(inE('{}')) from {}".format(
-                        Edges.HasIssuerKey, needle._rid))[0].oRecordData
+                        Edges.HasClaimDef, needle._rid))[0].oRecordData
                 return {
                     ORIGIN: frm,
                     REF: ref,
@@ -656,7 +656,7 @@ class IdentityGraph(OrientDbGraphStore):
             fault(ex, "Error adding cred def to orientdb")
 
 
-    def addIssuerKeyTxnToGraph(self, txn):
+    def addClaimDefTxnToGraph(self, txn):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
@@ -667,13 +667,13 @@ class IdentityGraph(OrientDbGraphStore):
                 return
 
         try:
-            self.addIssuerKey(
+            self.addClaimDef(
                 frm=origin,
                 txnId=txnId,
                 data=data,
                 reference=txn.get(REF),
                 )
-            self._updateTxnIdEdgeWithTxn(txnId, Edges.HasIssuerKey, txn)
+            self._updateTxnIdEdgeWithTxn(txnId, Edges.HasClaimDef, txn)
         except Exception as ex:
             fault(ex, "Error adding issuer key to orientdb")
             pass
