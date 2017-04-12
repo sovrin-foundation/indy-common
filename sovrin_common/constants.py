@@ -55,26 +55,26 @@ NODE = SovrinTransactions.NODE.value
 NYM = SovrinTransactions.NYM.value
 ATTRIB = SovrinTransactions.ATTRIB.value
 SCHEMA = SovrinTransactions.SCHEMA.value
-ISSUER_KEY = SovrinTransactions.CLAIM_DEF.value
+CLAIM_DEF = SovrinTransactions.CLAIM_DEF.value
 DISCLO = SovrinTransactions.DISCLO.value
 GET_ATTR = SovrinTransactions.GET_ATTR.value
 GET_NYM = SovrinTransactions.GET_NYM.value
 GET_TXNS = SovrinTransactions.GET_TXNS.value
 GET_SCHEMA = SovrinTransactions.GET_SCHEMA.value
-GET_ISSUER_KEY = SovrinTransactions.GET_CLAIM_DEF.value
+GET_CLAIM_DEF = SovrinTransactions.GET_CLAIM_DEF.value
 
 POOL_UPGRADE = SovrinTransactions.POOL_UPGRADE.value
 NODE_UPGRADE = SovrinTransactions.NODE_UPGRADE.value
 
-openTxns = (GET_NYM, GET_ATTR, GET_SCHEMA, GET_ISSUER_KEY)
+openTxns = (GET_NYM, GET_ATTR, GET_SCHEMA, GET_CLAIM_DEF)
 
 # TXN_TYPE -> (requireds, optionals)
 fields = {NYM: ([TARGET_NYM], [ROLE]),
           ATTRIB: ([], [RAW, ENC, HASH]),
           SCHEMA: ([NAME, VERSION, ATTR_NAMES], [TYPE, ]),
           GET_SCHEMA: ([], []),
-          ISSUER_KEY: ([REF, DATA]),
-          GET_ISSUER_KEY: ([REF, ORIGIN])
+          CLAIM_DEF: ([REF, DATA]),
+          GET_CLAIM_DEF: ([REF, ORIGIN])
           }
 
 CONFIG_TXN_TYPES = {POOL_UPGRADE, NODE_UPGRADE}
@@ -86,8 +86,8 @@ IDENTITY_TXN_TYPES = {NYM,
                       GET_TXNS,
                       SCHEMA,
                       GET_SCHEMA,
-                      ISSUER_KEY,
-                      GET_ISSUER_KEY}
+                      CLAIM_DEF,
+                      GET_CLAIM_DEF}
 
 validTxnTypes = set()
 validTxnTypes.update(POOL_TXN_TYPES)

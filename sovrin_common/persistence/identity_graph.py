@@ -18,7 +18,7 @@ from plenum.server.node import Node
 from sovrin_common.auth import Authoriser
 
 from sovrin_common.constants import TARGET_NYM, \
-    ROLE, REF, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY, NYM, TRUST_ANCHOR, TGB
+    ROLE, REF, ATTRIB, SCHEMA, ATTR_NAMES, CLAIM_DEF, NYM, TRUST_ANCHOR, TGB
 
 logger = getlogger()
 
@@ -59,7 +59,7 @@ txnEdges = {
         NYM: Edges.AddsNym,
         ATTRIB: Edges.AddsAttribute,
         SCHEMA: Edges.AddsSchema,
-        ISSUER_KEY: Edges.HasIssuerKey
+        CLAIM_DEF: Edges.HasIssuerKey
     }
 
 

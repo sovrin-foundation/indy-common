@@ -1,5 +1,5 @@
-from sovrin_common.constants import NYM, NODE, ATTRIB, SCHEMA, ISSUER_KEY, DISCLO, GET_ATTR, GET_NYM, GET_TXNS, \
-    GET_SCHEMA, GET_ISSUER_KEY, POOL_UPGRADE, NODE_UPGRADE
+from sovrin_common.constants import NYM, NODE, ATTRIB, SCHEMA, CLAIM_DEF, DISCLO, GET_ATTR, GET_NYM, GET_TXNS, \
+    GET_SCHEMA, GET_CLAIM_DEF, POOL_UPGRADE, NODE_UPGRADE
 from sovrin_common.transactions import SovrinTransactions
 
 
@@ -8,13 +8,13 @@ def testTransactionsAreEncoded():
     assert NYM == "1"
     assert ATTRIB == "100"
     assert SCHEMA == "101"
-    assert ISSUER_KEY == "102"
+    assert CLAIM_DEF == "102"
     assert DISCLO == "103"
     assert GET_ATTR == "104"
     assert GET_NYM == "105"
     assert GET_TXNS == "106"
     assert GET_SCHEMA == "107"
-    assert GET_ISSUER_KEY == "108"
+    assert GET_CLAIM_DEF == "108"
     assert POOL_UPGRADE == "109"
     assert NODE_UPGRADE == "110"
 
