@@ -25,14 +25,14 @@ def testTransactionEnumDecoded():
 
     assert SovrinTransactions.ATTRIB.name == "ATTRIB"
     assert SovrinTransactions.SCHEMA.name == "SCHEMA"
-    assert SovrinTransactions.CLAIM_DEF.name == "ISSUER_KEY"
+    assert SovrinTransactions.CLAIM_DEF.name == "CLAIM_DEF"
 
     assert SovrinTransactions.DISCLO.name == "DISCLO"
     assert SovrinTransactions.GET_ATTR.name == "GET_ATTR"
     assert SovrinTransactions.GET_NYM.name == "GET_NYM"
     assert SovrinTransactions.GET_TXNS.name == "GET_TXNS"
     assert SovrinTransactions.GET_SCHEMA.name == "GET_SCHEMA"
-    assert SovrinTransactions.GET_CLAIM_DEF.name == "GET_ISSUER_KEY"
+    assert SovrinTransactions.GET_CLAIM_DEF.name == "GET_CLAIM_DEF"
     assert SovrinTransactions.POOL_UPGRADE.name == "POOL_UPGRADE"
     assert SovrinTransactions.NODE_UPGRADE.name == "NODE_UPGRADE"
 
