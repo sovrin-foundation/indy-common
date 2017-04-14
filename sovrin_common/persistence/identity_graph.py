@@ -18,7 +18,8 @@ from plenum.server.node import Node
 from sovrin_common.auth import Authoriser
 
 from sovrin_common.constants import TARGET_NYM, \
-    ROLE, REF, ATTRIB, SCHEMA, ATTR_NAMES, CLAIM_DEF, NYM, TRUST_ANCHOR, TGB
+    ROLE, REF, ATTRIB, SCHEMA, ATTR_NAMES, CLAIM_DEF, \
+    NYM, TRUST_ANCHOR, TGB, SIGNATURE_TYPE
 
 logger = getlogger()
 
@@ -152,6 +153,7 @@ class IdentityGraph(OrientDbGraphStore):
         self.createVertexClass(Vertices.ClaimDef, properties={
             REF: "string",
             DATA: "string", # JSON
+            SIGNATURE_TYPE: "string"
         })
 
     def createAddsNymClass(self):
@@ -279,14 +281,15 @@ class IdentityGraph(OrientDbGraphStore):
         }
         self.createEdge(Edges.AddsSchema, frm, vertex._rid, **kwargs)
 
-    def addClaimDef(self, frm, txnId, data, reference):
+    def addClaimDef(self, frm, txnId, data, reference, signatureType):
         kwargs = {
             DATA: json.dumps(data),
-            REF: reference
+            REF: reference,
+            SIGNATURE_TYPE: signatureType
         }
         vertex = self.createVertex(Vertices.ClaimDef, **kwargs)
-        frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM_KEY,
-                                                        frm)
+        frm = "(select from {} where {} = '{}')"\
+            .format(Vertices.Nym, NYM_KEY,frm)
         kwargs = {
             TXN_ID: txnId,
         }
@@ -343,7 +346,7 @@ class IdentityGraph(OrientDbGraphStore):
             }
         return None
 
-    def getClaimDef(self, frm, ref):
+    def getClaimDef(self, frm, ref, signatureType):
         cmd = "select expand(outE('{}').inV('{}')) from {} where " \
               "{} = '{}'".format(Edges.HasClaimDef, Vertices.ClaimDef,
                                  Vertices.Nym, NYM_KEY, frm)
@@ -356,11 +359,12 @@ class IdentityGraph(OrientDbGraphStore):
                     break
             if needle:
                 edgeData = self.client.command(
-                    "select expand(inE('{}')) from {}".format(
-                        Edges.HasClaimDef, needle._rid))[0].oRecordData
+                    "select expand(inE('{}')) from {}".
+                        format(Edges.HasClaimDef, needle._rid))[0].oRecordData
                 return {
                     ORIGIN: frm,
                     REF: ref,
+                    SIGNATURE_TYPE: signatureType,
                     F.seqNo.name: edgeData.get(F.seqNo.name),
                     DATA: json.loads(needle.oRecordData.get(DATA))
                 }
@@ -660,6 +664,7 @@ class IdentityGraph(OrientDbGraphStore):
         origin = txn.get(f.IDENTIFIER.nm)
         txnId = txn[TXN_ID]
         data = txn.get(DATA)
+        signatureType = txn[SIGNATURE_TYPE]
 
         if isinstance(data, str):
             data = self.parseTxnData(data)
@@ -672,7 +677,7 @@ class IdentityGraph(OrientDbGraphStore):
                 txnId=txnId,
                 data=data,
                 reference=txn.get(REF),
-                )
+                signatureType=signatureType)
             self._updateTxnIdEdgeWithTxn(txnId, Edges.HasClaimDef, txn)
         except Exception as ex:
             fault(ex, "Error adding issuer key to orientdb")
