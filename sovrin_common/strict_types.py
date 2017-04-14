@@ -34,8 +34,9 @@ class strict_types:
             for argument, argument_type in ((i, type(j)) for i, j in all_args.items()):
                 if argument in hints:
                     if not issubclass(argument_type, hints[argument]):
-                        raise TypeError('Type of {} is {} and not {}'.
-                                        format(argument,
+                        raise TypeError('In {} type of {} is {} and not {}'.
+                                        format(function.__qualname__,
+                                               argument,
                                                argument_type,
                                                hints[argument]))
 
