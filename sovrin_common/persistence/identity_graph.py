@@ -18,7 +18,8 @@
 # from sovrin_common.auth import Authoriser
 #
 # from sovrin_common.constants import TARGET_NYM, \
-#     ROLE, REF, ATTRIB, SCHEMA, ATTR_NAMES, ISSUER_KEY, NYM, TRUST_ANCHOR, TGB
+#     ROLE, REF, ATTRIB, SCHEMA, ATTR_NAMES, CLAIM_DEF, \
+#     NYM, TRUST_ANCHOR, TGB, SIGNATURE_TYPE
 #
 # logger = getlogger()
 #
@@ -29,13 +30,13 @@
 #     Nym = "NYM"
 #     Attribute = "Attribute"
 #     Schema = "Schema"
-#     IssuerKey = "IssuerKey"
+#     ClaimDef = "ClaimDef"
 #
 #     _Properties = {
 #         Nym: (NYM_KEY, VERKEY, TXN_ID, ROLE, F.seqNo.name),
 #         Attribute: (RAW, ENC, HASH),
 #         Schema: (TYPE, ATTR_NAMES),
-#         IssuerKey: (REF, DATA)
+#         ClaimDef: (REF, DATA)
 #     }
 #
 #     @classmethod
@@ -52,14 +53,14 @@
 #     # with someone
 #     AliasOf = "AliasOf"
 #     AddsSchema = "AddsSchema"
-#     HasIssuerKey = "HasIssuerKey"
+#     HasClaimDef = "HasClaimDef"
 #
 #
 # txnEdges = {
 #         NYM: Edges.AddsNym,
 #         ATTRIB: Edges.AddsAttribute,
 #         SCHEMA: Edges.AddsSchema,
-#         ISSUER_KEY: Edges.HasIssuerKey
+#         CLAIM_DEF: Edges.HasClaimDef
 #     }
 #
 #
@@ -84,13 +85,13 @@
 #             (Vertices.Nym, self.createNymClass),
 #             (Vertices.Attribute, self.createAttributeClass),
 #             (Vertices.Schema, self.createSchemaClass),
-#             (Vertices.IssuerKey, self.createIssuerKeyClass),
+#             (Vertices.ClaimDef, self.createClaimDefClass),
 #             (Edges.AddsNym, self.createAddsNymClass),
 #             (Edges.AliasOf, self.createAliasOfClass),
 #             (Edges.AddsAttribute, self.createAddsAttributeClass),
 #             (Edges.HasAttribute, self.createHasAttributeClass),
 #             (Edges.AddsSchema, self.createAddsSchemaClass),
-#             (Edges.HasIssuerKey, self.createHasIssuerClass)
+#             (Edges.HasClaimDef, self.createHasIssuerClass)
 #         ]
 #
 #     # Creates a vertex class which has a property called `nym` with a unique
@@ -148,10 +149,11 @@
 #             TYPE: "string",
 #         })
 #
-#     def createIssuerKeyClass(self):
-#         self.createVertexClass(Vertices.IssuerKey, properties={
+#     def createClaimDefClass(self):
+#         self.createVertexClass(Vertices.ClaimDef, properties={
 #             REF: "string",
 #             DATA: "string", # JSON
+#             SIGNATURE_TYPE: "string"
 #         })
 #
 #     def createAddsNymClass(self):
@@ -185,7 +187,7 @@
 #         self.addEdgeConstraint(Edges.AddsSchema, iN=Vertices.Schema)
 #
 #     def createHasIssuerClass(self):
-#         self.createUniqueTxnIdEdgeClass(Edges.HasIssuerKey)
+#         self.createUniqueTxnIdEdgeClass(Edges.HasClaimDef)
 #         self.addEdgeConstraint(Edges.HasAttribute, out=Vertices.Nym)
 #
 #     def getEdgeByTxnId(self, edgeClassName, txnId):
@@ -279,18 +281,19 @@
 #         }
 #         self.createEdge(Edges.AddsSchema, frm, vertex._rid, **kwargs)
 #
-#     def addIssuerKey(self, frm, txnId, data, reference):
+#     def addClaimDef(self, frm, txnId, data, reference, signatureType):
 #         kwargs = {
 #             DATA: json.dumps(data),
-#             REF: reference
+#             REF: reference,
+#             SIGNATURE_TYPE: signatureType
 #         }
-#         vertex = self.createVertex(Vertices.IssuerKey, **kwargs)
-#         frm = "(select from {} where {} = '{}')".format(Vertices.Nym, NYM_KEY,
-#                                                         frm)
+#         vertex = self.createVertex(Vertices.ClaimDef, **kwargs)
+#         frm = "(select from {} where {} = '{}')"\
+#             .format(Vertices.Nym, NYM_KEY,frm)
 #         kwargs = {
 #             TXN_ID: txnId,
 #         }
-#         self.createEdge(Edges.HasIssuerKey, frm, vertex._rid, **kwargs)
+#         self.createEdge(Edges.HasClaimDef, frm, vertex._rid, **kwargs)
 #
 #     def updateNym(self, txnId, nym, seqNo, **kwargs):
 #         kwargs.update({
@@ -343,9 +346,9 @@
 #             }
 #         return None
 #
-#     def getIssuerKeys(self, frm, ref):
+#     def getClaimDef(self, frm, ref, signatureType):
 #         cmd = "select expand(outE('{}').inV('{}')) from {} where " \
-#               "{} = '{}'".format(Edges.HasIssuerKey, Vertices.IssuerKey,
+#               "{} = '{}'".format(Edges.HasClaimDef, Vertices.ClaimDef,
 #                                  Vertices.Nym, NYM_KEY, frm)
 #         haystack = self.client.command(cmd)
 #         needle = None
@@ -356,11 +359,12 @@
 #                     break
 #             if needle:
 #                 edgeData = self.client.command(
-#                     "select expand(inE('{}')) from {}".format(
-#                         Edges.HasIssuerKey, needle._rid))[0].oRecordData
+#                     "select expand(inE('{}')) from {}".
+#                         format(Edges.HasClaimDef, needle._rid))[0].oRecordData
 #                 return {
 #                     ORIGIN: frm,
 #                     REF: ref,
+#                     SIGNATURE_TYPE: signatureType,
 #                     F.seqNo.name: edgeData.get(F.seqNo.name),
 #                     DATA: json.loads(needle.oRecordData.get(DATA))
 #                 }
@@ -655,10 +659,12 @@
 #         except Exception as ex:
 #             fault(ex, "Error adding cred def to orientdb")
 #
-#     def addIssuerKeyTxnToGraph(self, txn):
+#
+#     def addClaimDefTxnToGraph(self, txn):
 #         origin = txn.get(f.IDENTIFIER.nm)
 #         txnId = txn[TXN_ID]
 #         data = txn.get(DATA)
+#         signatureType = txn[SIGNATURE_TYPE]
 #
 #         if isinstance(data, str):
 #             data = self.parseTxnData(data)
@@ -666,13 +672,13 @@
 #                 return
 #
 #         try:
-#             self.addIssuerKey(
+#             self.addClaimDef(
 #                 frm=origin,
 #                 txnId=txnId,
 #                 data=data,
 #                 reference=txn.get(REF),
-#                 )
-#             self._updateTxnIdEdgeWithTxn(txnId, Edges.HasIssuerKey, txn)
+#                 signatureType=signatureType)
+#             self._updateTxnIdEdgeWithTxn(txnId, Edges.HasClaimDef, txn)
 #         except Exception as ex:
 #             fault(ex, "Error adding issuer key to orientdb")
 #             pass

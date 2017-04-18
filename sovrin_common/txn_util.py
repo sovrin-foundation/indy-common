@@ -1,10 +1,12 @@
 import json
 from collections import OrderedDict
 
-from plenum.common.constants import TXN_TYPE, TARGET_NYM, DATA, ENC, RAW, HASH, ALIAS, TXN_ID, TRUSTEE, STEWARD, \
+from plenum.common.constants import TXN_TYPE, TARGET_NYM, \
+    DATA, ENC, RAW, HASH, ALIAS, TXN_ID, TRUSTEE, STEWARD, \
     TXN_TIME, VERKEY
 from plenum.common.types import f
-from sovrin_common.constants import NYM, ATTRIB, GET_ATTR, ROLE, REF, TRUST_ANCHOR
+from sovrin_common.constants import NYM, ATTRIB, GET_ATTR, \
+    ROLE, REF, TRUST_ANCHOR, SIGNATURE_TYPE
 
 
 def AddNym(target, role=None):
@@ -123,5 +125,6 @@ def getTxnOrderedFields():
         (ENC, (str, str)),
         (HASH, (str, str)),
         (ROLE, (str, str)),
-        (REF, (str, str))
+        (REF, (str, str)),
+        (SIGNATURE_TYPE, (str, str))
     ])
