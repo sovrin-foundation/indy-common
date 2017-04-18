@@ -114,8 +114,8 @@ def getTxnOrderedFields():
     return OrderedDict([
         (f.IDENTIFIER.nm, (str, str)),
         (f.REQ_ID.nm, (str, int)),
-        (TXN_ID, (str, str)),
-        (TXN_TIME, (str, int)),
+        (f.SIG.nm, (str, str)),
+        (TXN_TIME, (str, float)),
         (TXN_TYPE, (str, str)),
         (TARGET_NYM, (str, str)),
         (VERKEY, (str, str)),

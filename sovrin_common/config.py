@@ -2,7 +2,7 @@ import os
 import logging
 from collections import OrderedDict
 
-from plenum.common.constants import ClientBootStrategy
+from plenum.common.constants import ClientBootStrategy, HS_LEVELDB
 from sovrin_common.constants import Environment
 
 nodeReg = OrderedDict([
@@ -25,6 +25,7 @@ baseDir = "~/.sovrin"
 domainTransactionsFile = "transactions_sandbox"
 poolTransactionsFile = "pool_transactions_sandbox"
 configTransactionsFile = "config_transactions"
+configStateDbName = 'config_state'
 
 logFilePath = "cli.log"
 
@@ -33,7 +34,8 @@ outFilePath = "cli_output.log"
 clientBootStrategy = ClientBootStrategy.Custom
 
 hashStore = {
-    "type": "orientdb"
+    # "type": "orientdb"
+    "type": HS_LEVELDB
 }
 
 primaryStorage = None
@@ -79,6 +81,9 @@ ENVS = {
     "live": Environment("pool_transactions_live", "transactions_live")
 }
 
+
+# TODO: This should be in sovrin_node's config
+
 # File that stores the version of the Node ran the last time it started. (It
 # might be incorrect sometimes if Node failed to update the file and crashed)
 lastRunVersionFile = 'last_version'
@@ -109,3 +114,5 @@ controlServicePort = "30003"
 logging level for agents
 '''
 agentLoggingLevel = logging.INFO
+
+attrDB = 'attr_db'

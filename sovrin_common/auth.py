@@ -58,7 +58,7 @@ class Authoriser:
     @staticmethod
     def getRoleFromName(roleName) -> bool:
         if not roleName:
-            return None
+            return
         return Roles[roleName].value
 
     @staticmethod
