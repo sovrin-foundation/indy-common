@@ -34,7 +34,7 @@ BASE_DIR = os.path.join(os.path.expanduser("~"), ".sovrin")
 CONFIG_FILE = os.path.join(BASE_DIR, "sovrin_config.py")
 
 setup(
-    name='sovrin-common-dev',
+    name='sovrin-common',
     version=__version__,
     description='Sovrin common',
     url='https://github.com/sovrin-foundation/sovrin-common.git',
@@ -48,10 +48,10 @@ setup(
         '': ['*.txt', '*.md', '*.rst', '*.json', '*.conf', '*.html',
              '*.css', '*.ico', '*.png', 'LICENSE', 'LEGAL', '*.sovrin']},
     include_package_data=True,
-#    data_files=[(
-#        (BASE_DIR, ['data/pool_transactions_sandbox', ])
-#    )],
-    install_requires=['plenum-dev==0.3.47'],
+    #data_files=[(
+    #    (BASE_DIR, ['data/pool_transactions_sandbox', ])
+    #)],
+    install_requires=['plenum==0.3.10'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     scripts=['scripts/get_keys',
