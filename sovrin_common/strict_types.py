@@ -60,7 +60,7 @@ class strict_types:
 
         def postcheck(result):
             if 'return' in type_hints:
-                if not self.is_subtype(result, type_hints['return']):
+                if not self.is_subtype(type(result), type_hints['return']):
                     raise TypeError('Type of result is {} and not {}'.
                                     format(type(result), type_hints['return']))
             return result
