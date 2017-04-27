@@ -24,13 +24,15 @@ class strict_types:
         return any(type(type_) is complex_type for complex_type in complex_types)
 
     def is_subtype(self, type_a, type_b):
-        # This wouldn't work for nested complex types like Union[Union[...]]
-        # but since there is no such types in the project (at least for now)
-        # this simple implementation is okay
+        # This wouldn't work for nested Types (from typing package)
+        # like Union[Tuple[...]] but since there is no such types in the
+        # project (at least for now) this simple implementation is okay
 
         if self.is_complex_type(type_b):
-            type_b = getattr(type_b, '__args__', None) or \
-                     getattr(type_b, '__union_set_params__', None)
+            type_b = tuple(
+                getattr(type_b, '__args__', None) or \
+                getattr(type_b, '__union_set_params__', None)
+            )
 
         if self.is_complex_type(type_a):
             return type_a is type_b
