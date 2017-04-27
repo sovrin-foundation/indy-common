@@ -29,7 +29,8 @@ class strict_types:
         # this simple implementation is okay
 
         if self.is_complex_type(type_b):
-            type_b = type_b.__args__
+            type_b = getattr(type_b, '__args__', None) or \
+                     getattr(type_b, '__union_set_params__', None)
 
         if self.is_complex_type(type_a):
             return type_a is type_b
