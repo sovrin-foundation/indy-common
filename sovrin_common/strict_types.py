@@ -8,7 +8,7 @@ if 'defaultShouldCheck' not in globals():
 
 import inspect
 
-from typing import get_type_hints
+import typing
 
 
 class strict_types:
@@ -19,32 +19,50 @@ class strict_types:
         else:
             self.shouldCheck = defaultShouldCheck
 
+    def is_complex_type(self, type_):
+        complex_types = [type(typing.Union), type(typing.Tuple)]
+        return any(type(type_) is complex_type for complex_type in complex_types)
+
+    def is_subtype(self, type_a, type_b):
+        # This wouldn't work for nested complex types like Union[Union[...]]
+        # but since there is no such types in the project (at least for now)
+        # this simple implementation is okay
+
+        if self.is_complex_type(type_b):
+            type_b = type_b.__args__
+
+        if self.is_complex_type(type_a):
+            return type_a is type_b
+        return issubclass(type_a, type_b)
+
     def __call__(self, function):
 
         if not self.shouldCheck:
             return function
 
-        hints = get_type_hints(function)
+        type_hints = typing.get_type_hints(function)
 
         def precheck(*args, **kwargs):
 
             all_args = kwargs.copy()
             all_args.update(dict(zip(function.__code__.co_varnames, args)))
+            runtime_args = ((n, type(v)) for n, v in all_args.items())
 
-            for argument, argument_type in ((i, type(j)) for i, j in all_args.items()):
-                if argument in hints:
-                    if not issubclass(argument_type, hints[argument]):
-                        raise TypeError('In {} type of {} is {} and not {}'.
-                                        format(function.__qualname__,
-                                               argument,
-                                               argument_type,
-                                               hints[argument]))
+            for arg_name, arg_type in runtime_args:
+                if arg_name not in type_hints:
+                    continue
+                if not self.is_subtype(arg_type, type_hints[arg_name]):
+                    raise TypeError('In {} type of {} is {} and not {}'.
+                                    format(function.__qualname__,
+                                           arg_name,
+                                           arg_type,
+                                           type_hints[arg_name]))
 
         def postcheck(result):
-            if 'return' in hints:
-                if not isinstance(result, hints['return']):
+            if 'return' in type_hints:
+                if not self.is_subtype(result, type_hints['return']):
                     raise TypeError('Type of result is {} and not {}'.
-                                    format(type(result), hints['return']))
+                                    format(type(result), type_hints['return']))
             return result
 
         if inspect.iscoroutinefunction(function):
@@ -67,3 +85,5 @@ def decClassMethods(decorator):
             setattr(cls, name, decorator(m))
         return cls
     return decClass
+
+
