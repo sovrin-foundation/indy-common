@@ -16,6 +16,10 @@ class LinkNotFound(NotFound):
             self.reason = "Link with name not found".format(name)
 
 
+class VerkeyNotFound(NotFound):
+    pass
+
+
 class SchemaNotFound(NotFound):
     pass
 
