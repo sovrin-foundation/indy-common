@@ -15,3 +15,7 @@ class Roles(Enum):
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def nameFromValue(value):
+        return Roles(value).name if value else 'USER'
