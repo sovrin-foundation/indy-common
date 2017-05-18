@@ -18,4 +18,5 @@ class Roles(Enum):
 
     @staticmethod
     def nameFromValue(value):
-        return Roles(value).name if value else 'USER'
+        # TODO: think about a term for a user with None role
+        return Roles(value).name if value else 'None role'

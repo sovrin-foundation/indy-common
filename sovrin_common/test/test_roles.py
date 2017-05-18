@@ -28,4 +28,4 @@ def testNameFromValue():
     assert Roles.nameFromValue("0") == "TRUSTEE"
     assert Roles.nameFromValue("100") == "TGB"
     assert Roles.nameFromValue("101") == "TRUST_ANCHOR"
-    assert Roles.nameFromValue(None) == "USER"
+    assert Roles.nameFromValue(None) == "None role"
