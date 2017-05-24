@@ -79,10 +79,20 @@ class ClientAttribOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(ATTRIB)),
         (TARGET_NYM, IdentifierField(optional=True)),
-        (RAW, NonEmptyStringField(optional=True)),
+        (RAW, JsonField(optional=True)),
         (ENC, NonEmptyStringField(optional=True)),
         (HASH, NonEmptyStringField(optional=True)),
     )
+
+    def _validate_message(self, msg):
+        fields_n = sum([1 for f in (RAW, ENC, HASH) if f in msg])
+        if fields_n == 0:
+            self._raise_missed_fields(RAW, ENC, HASH)
+        if fields_n > 1:
+            self._raise_invalid_message(
+                "only one field from '{}, {}, {}' is expected".format(RAW, ENC, HASH)
+            )
+
 
 
 class ClientGetAttribOperation(MessageValidator):
