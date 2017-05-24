@@ -1,13 +1,14 @@
 from copy import deepcopy
 from hashlib import sha256
 
-from plenum.common.messages.message_base import MessageValidator
+from plenum.common.messages.message_base import MessageValidator, MessageBase
 from plenum.common.request import Request as PRequest
 from plenum.common.constants import TXN_TYPE, RAW, ENC, HASH
 from plenum.common.types import OPERATION, \
     ClientMessageValidator as PClientMessageValidator, \
-    ClientOperationField as PClientOperationField
-from plenum.common.messages.fields import *
+    ClientOperationField as PClientOperationField, TaggedTuples, \
+    ConstantField, IdentifierField, NonEmptyStringField, \
+    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField
 
 from sovrin_common.constants import *
 
@@ -162,13 +163,28 @@ class ClientMessageValidator(PClientMessageValidator):
     )
 
 
+class LedgerIdField(PLedgerIdField):
+    ledger_ids = PLedgerIdField.ledger_ids + (CONFIG_LEDGER_ID,)
+
+
+# TODO do it more explicit way
+# replaces some field with actual values
+def patch_schemas():
+    for k, v in TaggedTuples.items():
+        if not issubclass(v, MessageBase):
+            continue
+        new_schema = []
+        for name, field in v.schema:
+            if isinstance(field, PLedgerIdField):
+                field = LedgerIdField()
+            new_schema.append((name, field))
+        v.schema = tuple(new_schema)
+
+patch_schemas()
+
+
 class SafeRequest(Request, ClientMessageValidator):
 
     def __init__(self, **kwargs):
         self.validate(kwargs)
         super().__init__(**kwargs)
-
-
-# TaggedTuples.update(
-#
-#)
