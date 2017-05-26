@@ -86,12 +86,12 @@ class ClientAttribOperation(MessageValidator):
     )
 
     def _validate_message(self, msg):
-        fields_n = sum([1 for f in (RAW, ENC, HASH) if f in msg])
+        fields_n = sum(1 for f in (RAW, ENC, HASH) if f in msg)
         if fields_n == 0:
             self._raise_missed_fields(RAW, ENC, HASH)
         if fields_n > 1:
             self._raise_invalid_message(
-                "only one field from '{}, {}, {}' is expected".format(RAW, ENC, HASH)
+                "only one field from {}, {}, {} is expected".format(RAW, ENC, HASH)
             )
 
 

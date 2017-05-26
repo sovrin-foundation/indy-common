@@ -19,7 +19,8 @@ def test_attrib_with_enc_raw_hash_in_same_time_fails():
     }
     with pytest.raises(TypeError) as ex_info:
         validator.validate(txn)
-    ex_info.match("only one field from '{}, {}, {}' is expected"
+    ex_info.match("validation error: only one field "
+                  "from {}, {}, {} is expected"
                   "".format(RAW, ENC, HASH))
 
 
@@ -30,7 +31,7 @@ def test_attrib_without_enc_raw_hash_fails():
     }
     with pytest.raises(TypeError) as ex_info:
         validator.validate(txn)
-    ex_info.match("validation error: missed fields '{}, {}, {}'"
+    ex_info.match("validation error: missed fields {}, {}, {}"
                   "".format(RAW, ENC, HASH))
 
 
@@ -42,5 +43,5 @@ def test_attrib_raw_is_invalid_json():
     }
     with pytest.raises(TypeError) as ex_info:
         validator.validate(txn)
-    ex_info.match("validation error: should be valid JSON string"
-                  "".format(RAW, ENC, HASH))
+    ex_info.match("validation error: should be "
+                  "valid JSON string \({}=foo\)".format(RAW))
