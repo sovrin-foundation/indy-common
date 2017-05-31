@@ -2,7 +2,7 @@ import itertools
 import pytest
 
 from plenum.common.constants import *
-from sovrin_common.constants import ATTRIB
+from sovrin_common.constants import ATTRIB, ENDPOINT
 from sovrin_common.types import ClientAttribOperation
 
 
@@ -35,7 +35,7 @@ def test_attrib_without_enc_raw_hash_fails():
                   "".format(RAW, ENC, HASH))
 
 
-def test_attrib_raw_is_invalid_json():
+def test_attrib_raw_is_invalid_json_fails():
     txn = {
         TXN_TYPE: ATTRIB,
         TARGET_NYM: 'foo',
@@ -45,3 +45,111 @@ def test_attrib_raw_is_invalid_json():
         validator.validate(txn)
     ex_info.match("validation error: should be "
                   "valid JSON string \({}=foo\)".format(RAW))
+
+
+def test_attrib_raw_empty_dict_fails():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{}',
+    }
+    with pytest.raises(TypeError) as ex_info:
+        validator.validate(txn)
+    ex_info.match("validation error: should contain one attribute "
+                  "\({}={{}}\)".format(RAW))
+
+
+def test_attrib_raw_list_fails():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '[]',
+    }
+    with pytest.raises(TypeError) as ex_info:
+        validator.validate(txn)
+    ex_info.match("validation error: should be a dict "
+                  "\({}=<class 'list'>\)".format(RAW))
+
+
+def test_attrib_raw_more_that_one_attrib_fails():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{"attr1": "foo", "attr2": "bar"}',
+    }
+    with pytest.raises(TypeError) as ex_info:
+        validator.validate(txn)
+    ex_info.match("validation error: should contain one attribute "
+                  "\({}={{.*}}\)".format(RAW))
+
+
+def test_attrib_raw_one_attrib_passes():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{"attr1": "foo"}',
+    }
+    validator.validate(txn)
+
+
+def test_attrib_raw_endpoint_none_passes():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{"endpoint": null}',
+    }
+    validator.validate(txn)
+
+
+def test_attrib_raw_endpoint_ha_none_passes():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{"endpoint": {"ha": null}}',
+    }
+    validator.validate(txn)
+
+
+def test_attrib_raw_endpoint_without_ha_passes():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{"endpoint": {"foo": "bar"}}',
+    }
+    validator.validate(txn)
+
+
+def test_attrib_raw_endpoint_ha_only_ip_address_fails():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{"endpoint": {"ha": "8.8.8.8"}}',
+    }
+    with pytest.raises(TypeError) as ex_info:
+        validator.validate(txn)
+    ex_info.match("validation error: format 'ip_address:port' is expected "
+                  "\({}={{'ha': '8.8.8.8'}}\)".format(ENDPOINT))
+
+
+def test_attrib_raw_endpoint_ha_invalid_port_fails():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{"endpoint": {"ha": "8.8.8.8:65536"}}',
+    }
+    with pytest.raises(TypeError) as ex_info:
+        validator.validate(txn)
+    ex_info.match("validation error: invalid port value "
+                  "\({}={{'ha': '8.8.8.8:65536'}}\)".format(ENDPOINT))
+
+
+def test_attrib_raw_endpoint_ha_invalid_ip_address_fails():
+    txn = {
+        TXN_TYPE: ATTRIB,
+        TARGET_NYM: 'foo',
+        RAW: '{"endpoint": {"ha": "256.8.8.8:9700"}}',
+    }
+    with pytest.raises(TypeError) as ex_info:
+        validator.validate(txn)
+    ex_info.match("validation error: invalid ip address value "
+                  "\({}={{'ha': '256.8.8.8:9700'}}\)".format(ENDPOINT))

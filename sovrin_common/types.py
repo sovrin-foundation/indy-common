@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 from hashlib import sha256
 
@@ -9,6 +10,7 @@ from plenum.common.types import OPERATION, \
     ClientOperationField as PClientOperationField, TaggedTuples, \
     ConstantField, IdentifierField, NonEmptyStringField, \
     JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField
+from plenum.common.util import check_endpoint_valid, is_network_ip_address_valid, is_network_port_valid
 
 from sovrin_common.constants import *
 
@@ -86,6 +88,11 @@ class ClientAttribOperation(MessageValidator):
     )
 
     def _validate_message(self, msg):
+        self.__validate_field_set(msg)
+        if RAW in msg:
+            self.__validate_raw_field(msg[RAW])
+
+    def __validate_field_set(self, msg):
         fields_n = sum(1 for f in (RAW, ENC, HASH) if f in msg)
         if fields_n == 0:
             self._raise_missed_fields(RAW, ENC, HASH)
@@ -94,6 +101,38 @@ class ClientAttribOperation(MessageValidator):
                 "only one field from {}, {}, {} is expected".format(RAW, ENC, HASH)
             )
 
+    def __validate_raw_field(self, raw_field):
+        raw = self.__decode_raw_field(raw_field)
+        if not isinstance(raw, dict):
+            self._raise_invalid_fields(RAW, type(raw),
+                                       'should be a dict')
+        if len(raw) != 1:
+            self._raise_invalid_fields(RAW, raw,
+                                       'should contain one attribute')
+        if ENDPOINT in raw:
+            self.__validate_endpoint_ha_field(raw[ENDPOINT])
+
+    def __decode_raw_field(self, raw_field):
+        return json.loads(raw_field)
+
+    def __validate_endpoint_ha_field(self, endpoint):
+        if endpoint is None:
+            return  # remove the attribute, valid case
+        HA_NAME = 'ha'
+        ha = endpoint.get(HA_NAME)
+        if ha is None:
+            return  # remove ha attribute, valid case
+        if ':' not in ha:
+            self._raise_invalid_fields(ENDPOINT, endpoint,
+                                       "invalid endpoint format "
+                                       "ip_address:port")
+        ip, port = ha.split(':')
+        if not is_network_ip_address_valid(ip):
+            self._raise_invalid_fields('ha', ha,
+                                       'invalid endpoint address')
+        if not is_network_port_valid(port):
+            self._raise_invalid_fields('ha', ha,
+                                       'invalid endpoint port')
 
 
 class ClientGetAttribOperation(MessageValidator):
@@ -169,7 +208,7 @@ class LedgerIdField(PLedgerIdField):
 
 # TODO do it more explicit way
 # replaces some field with actual values
-def patch_schemas():
+def patch_schemes():
     for k, v in TaggedTuples.items():
         if not issubclass(v, MessageBase):
             continue
@@ -180,7 +219,7 @@ def patch_schemas():
             new_schema.append((name, field))
         v.schema = tuple(new_schema)
 
-patch_schemas()
+patch_schemes()
 
 
 class SafeRequest(Request, ClientMessageValidator):
