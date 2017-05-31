@@ -43,7 +43,7 @@ def test_attrib_raw_is_invalid_json_fails():
     }
     with pytest.raises(TypeError) as ex_info:
         validator.validate(txn)
-    ex_info.match("validation error: should be "
+    ex_info.match("validation error: should be a "
                   "valid JSON string \({}=foo\)".format(RAW))
 
 
@@ -127,7 +127,7 @@ def test_attrib_raw_endpoint_ha_only_ip_address_fails():
     }
     with pytest.raises(TypeError) as ex_info:
         validator.validate(txn)
-    ex_info.match("validation error: format 'ip_address:port' is expected "
+    ex_info.match("validation error: invalid endpoint format ip_address:port "
                   "\({}={{'ha': '8.8.8.8'}}\)".format(ENDPOINT))
 
 
@@ -139,8 +139,8 @@ def test_attrib_raw_endpoint_ha_invalid_port_fails():
     }
     with pytest.raises(TypeError) as ex_info:
         validator.validate(txn)
-    ex_info.match("validation error: invalid port value "
-                  "\({}={{'ha': '8.8.8.8:65536'}}\)".format(ENDPOINT))
+    ex_info.match("validation error: invalid endpoint port "
+                  "\(ha=8.8.8.8:65536\)")
 
 
 def test_attrib_raw_endpoint_ha_invalid_ip_address_fails():
@@ -151,5 +151,5 @@ def test_attrib_raw_endpoint_ha_invalid_ip_address_fails():
     }
     with pytest.raises(TypeError) as ex_info:
         validator.validate(txn)
-    ex_info.match("validation error: invalid ip address value "
-                  "\({}={{'ha': '256.8.8.8:9700'}}\)".format(ENDPOINT))
+    ex_info.match("validation error: invalid endpoint address "
+                  "\(ha=256.8.8.8:9700\)")
