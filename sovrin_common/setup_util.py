@@ -11,19 +11,13 @@ class Setup:
     def __init__(self, basedir):
         self.base_dir = basedir
 
-    def setupAll(self):
-        self.setupNode()
-        self.setupClient()
-
     def setupCommon(self):
         self.setupTxns("poolLedger")
 
     def setupNode(self):
-        self.setupCommon()
         self.setupTxns("domainLedger")
 
     def setupClient(self):
-        self.setupCommon()
         self.setupSampleInvites()
 
     def setupTxns(self, key, force: bool = False):

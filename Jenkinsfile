@@ -54,4 +54,6 @@ def testWindowsNoDocker = {
 
 
 //testAndPublish(name, [ubuntu: testUbuntu, windows: testWindowsNoDocker, windowsNoDocker: testWindowsNoDocker])
-testAndPublish(name, [ubuntu: testUbuntu])
+
+options = new TestAndPublishOptions()
+testAndPublish(name, [ubuntu: testUbuntu], true, options)

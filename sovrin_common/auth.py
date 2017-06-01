@@ -34,7 +34,7 @@ class Authoriser:
             {STEWARD: [OWNER, ]},
         # TODO: should a steward be allowed to suspend its validator?
         '{}_services_[VALIDATOR]_[]'.format(NODE):
-            {TRUSTEE: [], STEWARD: [OWNER, ]},
+            {TRUSTEE: []},
         '{}_services_[]_[VALIDATOR]'.format(NODE):
             {TRUSTEE: []},
         '{}_node_ip_<any>_<any>'.format(NODE):
@@ -58,7 +58,7 @@ class Authoriser:
     @staticmethod
     def getRoleFromName(roleName) -> bool:
         if not roleName:
-            return None
+            return
         return Roles[roleName].value
 
     @staticmethod

@@ -2,7 +2,11 @@
 
 import sys
 import os
+
+import subprocess
 from setuptools import setup, find_packages, __version__
+from setuptools.command.develop import develop
+from setuptools.command.install import install
 
 v = sys.version_info
 if sys.version_info < (3, 5):
@@ -33,6 +37,35 @@ exec(compile(open(METADATA).read(), METADATA, 'exec'))
 BASE_DIR = os.path.join(os.path.expanduser("~"), ".sovrin")
 CONFIG_FILE = os.path.join(BASE_DIR, "sovrin_config.py")
 
+if not os.path.exists(BASE_DIR):
+    os.makedirs(BASE_DIR)
+
+if not os.path.exists(CONFIG_FILE):
+    with open(CONFIG_FILE, 'w') as f:
+        msg = "# Here you can create config entries according to your " \
+              "needs.\n " \
+              "# For help, refer config.py in the sovrin package.\n " \
+              "# Any entry you add here would override that from config " \
+              "example\n"
+        f.write(msg)
+
+
+def post_install():
+    subprocess.run(['python post-setup.py'], shell=True)
+
+
+class EnhancedInstall(install):
+    def run(self):
+        install.run(self)
+        post_install()
+
+
+class EnhancedInstallDev(develop):
+    def run(self):
+        develop.run(self)
+        post_install()
+
+
 setup(
     name='sovrin-common',
     version=__version__,
@@ -48,13 +81,14 @@ setup(
         '': ['*.txt', '*.md', '*.rst', '*.json', '*.conf', '*.html',
              '*.css', '*.ico', '*.png', 'LICENSE', 'LEGAL', '*.sovrin']},
     include_package_data=True,
-    #data_files=[(
-    #    (BASE_DIR, ['data/pool_transactions_sandbox', ])
-    #)],
-    install_requires=['plenum==0.3.12'],
+    install_requires=['plenum==0.3.13'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     scripts=['scripts/get_keys',
              'scripts/generate_sovrin_pool_transactions',
              'scripts/init_sovrin_keys'],
+    cmdclass={
+        'install': EnhancedInstall,
+        'develop': EnhancedInstallDev
+    }
 )

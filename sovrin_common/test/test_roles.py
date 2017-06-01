@@ -22,3 +22,10 @@ def testRolesEnumEncoded():
     assert Roles.TRUSTEE.value == "0"
     assert Roles.TGB.value == "100"
     assert Roles.TRUST_ANCHOR.value == "101"
+
+def testNameFromValue():
+    assert Roles.nameFromValue("2") == "STEWARD"
+    assert Roles.nameFromValue("0") == "TRUSTEE"
+    assert Roles.nameFromValue("100") == "TGB"
+    assert Roles.nameFromValue("101") == "TRUST_ANCHOR"
+    assert Roles.nameFromValue(None) == "None role"

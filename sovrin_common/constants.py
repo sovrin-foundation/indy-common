@@ -1,8 +1,7 @@
 from typing import NamedTuple
 
-from plenum.common.constants import TXN_TYPE, TARGET_NYM, ORIGIN, DATA, RAW, ENC, HASH, NAME, VERSION, TYPE, \
-    POOL_TXN_TYPES, ALIAS, \
-    VERKEY
+from plenum.common.constants import TXN_TYPE, TARGET_NYM, ORIGIN, DATA, RAW, \
+    ENC, HASH, NAME, VERSION, TYPE, POOL_TXN_TYPES, ALIAS, VERKEY
 from sovrin_common.roles import Roles
 from sovrin_common.transactions import SovrinTransactions
 
@@ -72,7 +71,7 @@ openTxns = (GET_NYM, GET_ATTR, GET_SCHEMA, GET_CLAIM_DEF)
 # TXN_TYPE -> (requireds, optionals)
 fields = {NYM: ([TARGET_NYM], [ROLE]),
           ATTRIB: ([], [RAW, ENC, HASH]),
-          SCHEMA: ([NAME, VERSION, ATTR_NAMES], [TYPE, ]),
+          SCHEMA: ([NAME, VERSION, ATTR_NAMES]),
           GET_SCHEMA: ([], []),
           CLAIM_DEF: ([REF, DATA, SIGNATURE_TYPE]),
           GET_CLAIM_DEF: ([REF, ORIGIN, SIGNATURE_TYPE])
@@ -94,3 +93,5 @@ validTxnTypes = set()
 validTxnTypes.update(POOL_TXN_TYPES)
 validTxnTypes.update(IDENTITY_TXN_TYPES)
 validTxnTypes.update(CONFIG_TXN_TYPES)
+
+CONFIG_LEDGER_ID = 2

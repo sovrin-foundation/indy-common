@@ -15,3 +15,8 @@ class Roles(Enum):
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def nameFromValue(value):
+        # TODO: think about a term for a user with None role
+        return Roles(value).name if value else 'None role'

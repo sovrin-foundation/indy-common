@@ -1,4 +1,5 @@
 import pytest
+import typing
 
 from sovrin_common.strict_types import strict_types, decClassMethods
 
@@ -10,6 +11,13 @@ def takesStr(s: str) -> int:
     except ValueError:
         pass
 
+
+@strict_types()
+def takesUnion(s: typing.Union[str, None]) -> int:
+    try:
+        return int(s)
+    except ValueError:
+        pass
 
 def testInvalidArgumentType():
     with pytest.raises(TypeError):
@@ -24,6 +32,8 @@ def testInvalidReturnType():
 def testValidInputAndReturn():
     takesStr('1')
 
+def testWorksWithComplexTypes():
+    takesUnion('1')
 
 @decClassMethods(strict_types())
 class TestClass:
