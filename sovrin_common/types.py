@@ -208,7 +208,7 @@ class LedgerIdField(PLedgerIdField):
 
 # TODO do it more explicit way
 # replaces some field with actual values
-def patch_schemes():
+def patch_schemas():
     for k, v in TaggedTuples.items():
         if not issubclass(v, MessageBase):
             continue
@@ -219,7 +219,7 @@ def patch_schemes():
             new_schema.append((name, field))
         v.schema = tuple(new_schema)
 
-patch_schemes()
+patch_schemas()
 
 
 class SafeRequest(Request, ClientMessageValidator):
