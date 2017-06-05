@@ -67,7 +67,7 @@ class EnhancedInstallDev(develop):
 
 
 setup(
-    name='sovrin-common',
+    name='sovrin-common-dev',
     version=__version__,
     description='Sovrin common',
     url='https://github.com/sovrin-foundation/sovrin-common.git',
@@ -81,7 +81,7 @@ setup(
         '': ['*.txt', '*.md', '*.rst', '*.json', '*.conf', '*.html',
              '*.css', '*.ico', '*.png', 'LICENSE', 'LEGAL', '*.sovrin']},
     include_package_data=True,
-    install_requires=['plenum==0.3.13'],
+    install_requires=['plenum-dev==0.3.134'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     scripts=['scripts/get_keys',
