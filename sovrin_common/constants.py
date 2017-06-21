@@ -1,7 +1,7 @@
 from typing import NamedTuple
 
 from plenum.common.constants import TXN_TYPE, TARGET_NYM, ORIGIN, DATA, RAW, \
-    ENC, HASH, NAME, VERSION, TYPE, POOL_TXN_TYPES, ALIAS, VERKEY
+    ENC, HASH, NAME, VERSION, TYPE, POOL_TXN_TYPES, ALIAS, VERKEY, FORCE
 from sovrin_common.roles import Roles
 from sovrin_common.transactions import SovrinTransactions
 
@@ -39,7 +39,7 @@ REVOCATION = "revocation"
 
 allOpKeys = (TXN_TYPE, TARGET_NYM, VERKEY, ORIGIN, ROLE, DATA, NONCE, REF, RAW,
              ENC, HASH, ALIAS, ACTION, SCHEDULE, TIMEOUT, SHA256, START, CANCEL,
-             NAME, VERSION, JUSTIFICATION, SIGNATURE_TYPE)
+             NAME, VERSION, JUSTIFICATION, SIGNATURE_TYPE, FORCE)
 
 reqOpKeys = (TXN_TYPE,)
 

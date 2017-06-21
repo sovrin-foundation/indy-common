@@ -2,15 +2,17 @@ import json
 from copy import deepcopy
 from hashlib import sha256
 
+from plenum.common.messages.fields import DestNymField
 from plenum.common.messages.message_base import MessageValidator, MessageBase
 from plenum.common.request import Request as PRequest
-from plenum.common.constants import TXN_TYPE, RAW, ENC, HASH
+from plenum.common.constants import TXN_TYPE, RAW, ENC, HASH, FORCE
 from plenum.common.types import OPERATION, \
     ClientMessageValidator as PClientMessageValidator, \
     ClientOperationField as PClientOperationField, TaggedTuples, \
     ConstantField, IdentifierField, NonEmptyStringField, \
-    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField
+    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField, BooleanField
 from plenum.common.util import check_endpoint_valid, is_network_ip_address_valid, is_network_port_valid
+
 
 from sovrin_common.constants import *
 
@@ -35,7 +37,7 @@ class Request(PRequest):
 class ClientGetNymOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(GET_NYM)),
-        (TARGET_NYM, IdentifierField()),
+        (TARGET_NYM, DestNymField()),
     )
 
 
@@ -50,7 +52,7 @@ class ClientDiscloOperation(MessageValidator):
         (TXN_TYPE, ConstantField(DISCLO)),
         (DATA, NonEmptyStringField()),
         (NONCE, NonEmptyStringField()),
-        (TARGET_NYM, IdentifierField(optional=True)),
+        (TARGET_NYM, DestNymField(optional=True)),
     )
 
 
@@ -73,7 +75,7 @@ class SchemaField(MessageValidator):
 class ClientGetSchemaOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(GET_SCHEMA)),
-        (TARGET_NYM, IdentifierField()),
+        (TARGET_NYM, DestNymField()),
         (DATA, SchemaField()),
     )
 
@@ -81,7 +83,7 @@ class ClientGetSchemaOperation(MessageValidator):
 class ClientAttribOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(ATTRIB)),
-        (TARGET_NYM, IdentifierField(optional=True)),
+        (TARGET_NYM, DestNymField(optional=True)),
         (RAW, JsonField(optional=True)),
         (ENC, NonEmptyStringField(optional=True)),
         (HASH, NonEmptyStringField(optional=True)),
@@ -138,7 +140,7 @@ class ClientAttribOperation(MessageValidator):
 class ClientGetAttribOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(GET_ATTR)),
-        (TARGET_NYM, IdentifierField(optional=True)),
+        (TARGET_NYM, DestNymField(optional=True)),
         (RAW, NonEmptyStringField()),
     )
 
@@ -172,6 +174,7 @@ class ClientPoolUpgradeOperation(MessageValidator):
         (TIMEOUT, NonNegativeNumberField(optional=True)),
         (JUSTIFICATION, NonEmptyStringField(optional=True, nullable=True)),
         (NAME, NonEmptyStringField(optional=True)),
+        (FORCE, BooleanField(optional=True)),
     )
 
 
