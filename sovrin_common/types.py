@@ -42,6 +42,7 @@ class ClientGetNymOperation(MessageValidator):
 class ClientGetTxnsOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(GET_TXNS)),
+        (DATA, NonNegativeNumberField())
     )
 
 
