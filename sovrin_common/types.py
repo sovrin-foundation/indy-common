@@ -9,7 +9,8 @@ from plenum.common.types import OPERATION, \
     ClientMessageValidator as PClientMessageValidator, \
     ClientOperationField as PClientOperationField, TaggedTuples, \
     ConstantField, IdentifierField, NonEmptyStringField, \
-    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField, BooleanField
+    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField, BooleanField, \
+    LimitedLengthStringField
 from plenum.common.util import check_endpoint_valid, is_network_ip_address_valid, is_network_port_valid
 
 from sovrin_common.constants import *
@@ -170,7 +171,7 @@ class ClientPoolUpgradeOperation(MessageValidator):
         (SCHEDULE, MapField(NonEmptyStringField(), NonEmptyStringField(), optional=True)),
         (SHA256, NonEmptyStringField()),
         (TIMEOUT, NonNegativeNumberField(optional=True)),
-        (JUSTIFICATION, NonEmptyStringField(optional=True, nullable=True)),
+        (JUSTIFICATION, LimitedLengthStringField(max_length=1000, optional=True, nullable=True)),
         (NAME, NonEmptyStringField(optional=True)),
         (FORCE, BooleanField(optional=True)),
     )
