@@ -23,6 +23,7 @@ def GetAttr(target, attrName, role=None):
     return newTxn(txnType=GET_ATTR, target=target, role=role,
                   data=queryData)
 
+
 # TODO: Change name to txn or some thing else after discussion
 def newTxn(txnType, target=None, data=None, enc=None, raw=None,
            hash=None, role=None):

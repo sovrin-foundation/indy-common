@@ -9,8 +9,10 @@ from plenum.common.types import OPERATION, \
     ClientMessageValidator as PClientMessageValidator, \
     ClientOperationField as PClientOperationField, TaggedTuples, \
     ConstantField, IdentifierField, NonEmptyStringField, \
-    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField, BooleanField
-from plenum.common.util import check_endpoint_valid, is_network_ip_address_valid, is_network_port_valid
+    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField, \
+    BooleanField, TxnSeqNoField, Sha256HexField
+from plenum.common.util import check_endpoint_valid, \
+    is_network_ip_address_valid, is_network_port_valid
 
 from sovrin_common.constants import *
 
@@ -146,7 +148,7 @@ class ClientGetAttribOperation(MessageValidator):
 class ClientClaimDefSubmitOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(CLAIM_DEF)),
-        (REF, NonNegativeNumberField()),
+        (REF, TxnSeqNoField()),
         (DATA, NonEmptyStringField()),
         (SIGNATURE_TYPE, NonEmptyStringField()),
     )
@@ -155,7 +157,7 @@ class ClientClaimDefSubmitOperation(MessageValidator):
 class ClientClaimDefGetOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(GET_CLAIM_DEF)),
-        (REF, NonNegativeNumberField()),
+        (REF, TxnSeqNoField()),
         (ORIGIN, NonEmptyStringField()),
         (SIGNATURE_TYPE, NonEmptyStringField()),
     )
@@ -167,8 +169,9 @@ class ClientPoolUpgradeOperation(MessageValidator):
         (ACTION, NonEmptyStringField()),  # TODO check actual value set
         (VERSION, NonEmptyStringField()),
         # TODO replace actual checks (idr, datetime)
-        (SCHEDULE, MapField(NonEmptyStringField(), NonEmptyStringField(), optional=True)),
-        (SHA256, NonEmptyStringField()),
+        (SCHEDULE, MapField(NonEmptyStringField(),
+                            NonEmptyStringField(), optional=True)),
+        (SHA256, Sha256HexField()),
         (TIMEOUT, NonNegativeNumberField(optional=True)),
         (JUSTIFICATION, NonEmptyStringField(optional=True, nullable=True)),
         (NAME, NonEmptyStringField(optional=True)),
