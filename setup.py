@@ -81,7 +81,7 @@ setup(
         '': ['*.txt', '*.md', '*.rst', '*.json', '*.conf', '*.html',
              '*.css', '*.ico', '*.png', 'LICENSE', 'LEGAL', '*.sovrin']},
     include_package_data=True,
-    install_requires=['plenum-dev==0.4.9'],
+    install_requires=['plenum-dev==0.4.10'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     scripts=['scripts/get_keys',
