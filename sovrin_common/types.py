@@ -9,7 +9,9 @@ from plenum.common.types import OPERATION, \
     ClientMessageValidator as PClientMessageValidator, \
     ClientOperationField as PClientOperationField, TaggedTuples, \
     ConstantField, IdentifierField, NonEmptyStringField, \
-    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField, BooleanField
+    JsonField, NonNegativeNumberField, IterableField, MapField, LedgerIdField as PLedgerIdField, \
+    BooleanField, LimitedLengthStringField, TxnSeqNoField, Sha256HexField, \
+    LedgerInfoField as PLedgerInfoField
 from plenum.common.util import check_endpoint_valid, is_network_ip_address_valid, is_network_port_valid
 
 from sovrin_common.constants import *
@@ -147,7 +149,7 @@ class ClientGetAttribOperation(MessageValidator):
 class ClientClaimDefSubmitOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(CLAIM_DEF)),
-        (REF, NonNegativeNumberField()),
+        (REF, TxnSeqNoField()),
         (DATA, NonEmptyStringField()),
         (SIGNATURE_TYPE, NonEmptyStringField()),
     )
@@ -156,7 +158,7 @@ class ClientClaimDefSubmitOperation(MessageValidator):
 class ClientClaimDefGetOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(GET_CLAIM_DEF)),
-        (REF, NonNegativeNumberField()),
+        (REF, TxnSeqNoField()),
         (ORIGIN, NonEmptyStringField()),
         (SIGNATURE_TYPE, NonEmptyStringField()),
     )
@@ -168,10 +170,11 @@ class ClientPoolUpgradeOperation(MessageValidator):
         (ACTION, NonEmptyStringField()),  # TODO check actual value set
         (VERSION, NonEmptyStringField()),
         # TODO replace actual checks (idr, datetime)
-        (SCHEDULE, MapField(NonEmptyStringField(), NonEmptyStringField(), optional=True)),
-        (SHA256, NonEmptyStringField()),
+        (SCHEDULE, MapField(NonEmptyStringField(),
+                            NonEmptyStringField(), optional=True)),
+        (SHA256, Sha256HexField()),
         (TIMEOUT, NonNegativeNumberField(optional=True)),
-        (JUSTIFICATION, NonEmptyStringField(optional=True, nullable=True)),
+        (JUSTIFICATION, LimitedLengthStringField(max_length=JUSTIFICATION_MAX_SIZE, optional=True, nullable=True)),
         (NAME, NonEmptyStringField(optional=True)),
         (FORCE, BooleanField(optional=True)),
     )
@@ -208,6 +211,18 @@ class LedgerIdField(PLedgerIdField):
     ledger_ids = PLedgerIdField.ledger_ids + (CONFIG_LEDGER_ID,)
 
 
+class LedgerInfoField(PLedgerInfoField):
+    _ledger_id_class = LedgerIdField
+
+
+def transform_field(field):
+    if isinstance(field, PLedgerIdField):
+        field = LedgerIdField()
+    if isinstance(field, PLedgerInfoField):
+        field = LedgerInfoField()
+    return field
+
+
 # TODO do it more explicit way
 # replaces some field with actual values
 def patch_schemas():
@@ -216,8 +231,14 @@ def patch_schemas():
             continue
         new_schema = []
         for name, field in v.schema:
-            if isinstance(field, PLedgerIdField):
-                field = LedgerIdField()
+            # TODO: A better way is look recursively, also don't change
+            # `schema` of `v` if an overridden field is not found
+
+            # TODO: Check for `MapField`
+            if isinstance(field, IterableField):
+                field = IterableField(transform_field(field.inner_field_type))
+            else:
+                field = transform_field(field)
             new_schema.append((name, field))
         v.schema = tuple(new_schema)
 
