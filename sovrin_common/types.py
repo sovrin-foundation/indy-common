@@ -41,13 +41,6 @@ class ClientGetNymOperation(MessageValidator):
     )
 
 
-class ClientGetTxnsOperation(MessageValidator):
-    schema = (
-        (TXN_TYPE, ConstantField(GET_TXNS)),
-        (DATA, TxnSeqNoField())
-    )
-
-
 class ClientDiscloOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(DISCLO)),

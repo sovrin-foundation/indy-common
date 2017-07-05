@@ -16,7 +16,7 @@ class SovrinTransactions(Enum):
     DISCLO = "103"
     GET_ATTR = "104"
     GET_NYM = "105"
-    GET_TXNS = "106"
+    GET_TXNS = PlenumTransactions.GET_TXN.value
     GET_SCHEMA = "107"
     GET_CLAIM_DEF = "108"
 
