@@ -6,13 +6,13 @@ from sovrin_common.transactions import SovrinTransactions
 def testTransactionsAreEncoded():
     assert NODE == "0"
     assert NYM == "1"
+    assert GET_TXNS == "3"
     assert ATTRIB == "100"
     assert SCHEMA == "101"
     assert CLAIM_DEF == "102"
     assert DISCLO == "103"
     assert GET_ATTR == "104"
     assert GET_NYM == "105"
-    assert GET_TXNS == "106"
     assert GET_SCHEMA == "107"
     assert GET_CLAIM_DEF == "108"
     assert POOL_UPGRADE == "109"
@@ -40,6 +40,7 @@ def testTransactionEnumDecoded():
 def testTransactionEnumEncoded():
     assert SovrinTransactions.NODE.value == "0"
     assert SovrinTransactions.NYM.value == "1"
+    assert SovrinTransactions.GET_TXNS.value == "3"
 
     assert SovrinTransactions.ATTRIB.value == "100"
     assert SovrinTransactions.SCHEMA.value == "101"
@@ -48,7 +49,6 @@ def testTransactionEnumEncoded():
     assert SovrinTransactions.DISCLO.value == "103"
     assert SovrinTransactions.GET_ATTR.value == "104"
     assert SovrinTransactions.GET_NYM.value == "105"
-    assert SovrinTransactions.GET_TXNS.value == "106"
     assert SovrinTransactions.GET_SCHEMA.value == "107"
     assert SovrinTransactions.GET_CLAIM_DEF.value == "108"
     assert SovrinTransactions.POOL_UPGRADE.value == "109"
