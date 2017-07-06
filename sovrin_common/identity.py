@@ -1,4 +1,5 @@
 from plenum.common.constants import TARGET_NYM, TXN_TYPE, NYM, ROLE, VERKEY
+from plenum.common.signer_did import DidIdentity
 from stp_core.types import Identifier
 from sovrin_common.auth import Authoriser
 
@@ -10,30 +11,27 @@ from sovrin_common.types import Request
 class Identity(GeneratesRequest):
     def __init__(self,
                  identifier: Identifier,
-                 trustAnchor: Identifier=None,
+                 trust_anchor: Identifier=None,
                  verkey=None,
                  role=None,
                  last_synced=None,
-                 seqNo=None):
+                 seq_no=None):
         """
 
         :param identifier:
-        :param trustAnchor:
+        :param trust_anchor:
         :param verkey:
         :param role: If role is explicitly passed as `null` then in the request
          to ledger, `role` key would be sent as None which would stop the
          Identity's ability to do any privileged actions. If role is not passed,
           `role` key will not be included in the request to the ledger
         :param last_synced:
-        :param seqNo:
+        :param seq_no:
         """
-        self.identifier = identifier
-        self.trustAnchor = trustAnchor
 
-        # None indicates the identifier is a cryptonym
-        self.verkey = verkey
+        self.identity = DidIdentity(identifier, verkey=verkey)
+        self.trustAnchor = trust_anchor
 
-        # None indicates the identifier is a cryptonym
         # if role and role not in (TRUST_ANCHOR, STEWARD):
         if not Authoriser.isValidRole(self.correctRole(role)):
             raise AttributeError("Invalid role {}".format(role))
@@ -45,7 +43,15 @@ class Identity(GeneratesRequest):
 
         # sequence number of the latest key management transaction for this
         # identifier
-        self.seqNo = seqNo
+        self.seqNo = seq_no
+
+    @property
+    def identifier(self):
+        return self.identity.identifier
+
+    @property
+    def verkey(self):
+        return self.identity.verkey
 
     @staticmethod
     def correctRole(role):
@@ -64,22 +70,22 @@ class Identity(GeneratesRequest):
     def _op(self):
         op = {
             TXN_TYPE: NYM,
-            TARGET_NYM: self.identifier
+            TARGET_NYM: self.identity.identifier
         }
-        if self.verkey is not None:
-            op[VERKEY] = self.verkey
+        if self.identity.verkey is not None:
+            op[VERKEY] = self.identity.verkey
         if self._role:
             op[ROLE] = self.role
         return op
 
     def ledgerRequest(self):
         if not self.seqNo:
-            assert self.identifier is not None
+            assert self.identity.identifier is not None
             return Request(identifier=self.trustAnchor, operation=self._op())
 
     def _opForGet(self):
         return {
-            TARGET_NYM: self.identifier,
+            TARGET_NYM: self.identity.identifier,
             TXN_TYPE: GET_NYM,
         }
 

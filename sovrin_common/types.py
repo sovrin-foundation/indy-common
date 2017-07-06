@@ -2,16 +2,19 @@ import json
 from copy import deepcopy
 from hashlib import sha256
 
+from plenum.common.messages.node_message_factory import node_message_factory
+
 from plenum.common.messages.message_base import MessageValidator, MessageBase
 from plenum.common.request import Request as PRequest
-from plenum.common.constants import TXN_TYPE, RAW, ENC, HASH, FORCE
-from plenum.common.types import OPERATION, \
-    ClientMessageValidator as PClientMessageValidator, \
-    ClientOperationField as PClientOperationField, TaggedTuples, \
+from plenum.common.types import OPERATION
+from plenum.common.messages.node_messages import \
     ConstantField, IdentifierField, NonEmptyStringField, \
     JsonField, NonNegativeNumberField, IterableField, MapField, LedgerIdField as PLedgerIdField, \
     BooleanField, LimitedLengthStringField, TxnSeqNoField, Sha256HexField, \
-    LedgerInfoField as PLedgerInfoField
+    LedgerInfoField as PLedgerInfoField, \
+    JsonField, NonNegativeNumberField, MapField, LedgerIdField as PLedgerIdField, BooleanField, VersionField
+from plenum.common.messages.client_request import ClientOperationField as PClientOperationField
+from plenum.common.messages.client_request import ClientMessageValidator as PClientMessageValidator
 from plenum.common.util import check_endpoint_valid, is_network_ip_address_valid, is_network_port_valid
 
 from sovrin_common.constants import *
@@ -61,7 +64,7 @@ class SchemaField(MessageValidator):
 
     schema = (
         (NAME, NonEmptyStringField()),
-        (VERSION, NonEmptyStringField()),
+        (VERSION, VersionField(components_number=(2, 3,))),
         (ORIGIN, NonEmptyStringField(optional=True)),
     )
 
@@ -161,7 +164,7 @@ class ClientPoolUpgradeOperation(MessageValidator):
     schema = (
         (TXN_TYPE, ConstantField(POOL_UPGRADE)),
         (ACTION, NonEmptyStringField()),  # TODO check actual value set
-        (VERSION, NonEmptyStringField()),
+        (VERSION, VersionField(components_number=(2, 3,))),
         # TODO replace actual checks (idr, datetime)
         (SCHEDULE, MapField(NonEmptyStringField(),
                             NonEmptyStringField(), optional=True)),
@@ -188,7 +191,10 @@ class ClientOperationField(PClientOperationField):
         POOL_UPGRADE: ClientPoolUpgradeOperation(),
     }
 
-    operations = {**PClientOperationField.operations, **_specific_operations}
+    # TODO: it is a workaround because INDY-338, `operations` must be a class constant
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.operations.update(self._specific_operations)
 
 
 class ClientMessageValidator(PClientMessageValidator):
@@ -208,34 +214,11 @@ class LedgerInfoField(PLedgerInfoField):
     _ledger_id_class = LedgerIdField
 
 
-def transform_field(field):
-    if isinstance(field, PLedgerIdField):
-        field = LedgerIdField()
-    if isinstance(field, PLedgerInfoField):
-        field = LedgerInfoField()
-    return field
-
-
-# TODO do it more explicit way
-# replaces some field with actual values
-def patch_schemas():
-    for k, v in TaggedTuples.items():
-        if not issubclass(v, MessageBase):
-            continue
-        new_schema = []
-        for name, field in v.schema:
-            # TODO: A better way is look recursively, also don't change
-            # `schema` of `v` if an overridden field is not found
-
-            # TODO: Check for `MapField`
-            if isinstance(field, IterableField):
-                field = IterableField(transform_field(field.inner_field_type))
-            else:
-                field = transform_field(field)
-            new_schema.append((name, field))
-        v.schema = tuple(new_schema)
-
-patch_schemas()
+# TODO: it is a workaround which helps extend some fields from
+# downstream projects, should be removed after we find a better way
+# to do this
+node_message_factory.update_schemas_by_field_type(PLedgerIdField, LedgerIdField)
+node_message_factory.update_schemas_by_field_type(PLedgerInfoField, LedgerInfoField)
 
 
 class SafeRequest(Request, ClientMessageValidator):
