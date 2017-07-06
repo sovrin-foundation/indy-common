@@ -186,7 +186,6 @@ class ClientOperationField(PClientOperationField):
         GET_CLAIM_DEF: ClientClaimDefGetOperation(),
         DISCLO: ClientDiscloOperation(),
         GET_NYM: ClientGetNymOperation(),
-        GET_TXNS: ClientGetTxnsOperation(),
         GET_SCHEMA: ClientGetSchemaOperation(),
         POOL_UPGRADE: ClientPoolUpgradeOperation(),
     }
