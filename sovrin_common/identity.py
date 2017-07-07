@@ -53,6 +53,11 @@ class Identity(GeneratesRequest):
     def verkey(self):
         return self.identity.verkey
 
+    @verkey.setter
+    def verkey(self, new_val):
+        identifier = self.identifier
+        self.identity = DidIdentity(identifier, verkey=new_val)
+
     @staticmethod
     def correctRole(role):
         return None if role == NULL else role
