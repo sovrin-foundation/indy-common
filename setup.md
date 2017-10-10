@@ -8,11 +8,11 @@ Common utility functions for other Sovrin repos (like sovrin-client, sovrin-node
 
 Sovrin-client requires anonymous credentials library which requires a cryptographic library.
 The default configuration includes an example that uses Charm-Crypto framework.
-The steps to install charm-crypto are mentioned in our [Anonymous Credentials](https://github.com/evernym/anoncreds) repository. 
+The steps to install charm-crypto are mentioned in our [Anonymous Credentials](https://github.com/evernym/anoncreds) repository.
 You just have to run `setup-charm.sh` script. It will require sudo privileges on the system.
 
 
-### Common Setup Instructions (sovrin-client or sovrin-node) 
+### Common Setup Instructions (sovrin-client or sovrin-node)
 
 As of Oct 3, these setup instructions are validated at a beta level.
 We are aware of a few cases where you might hit roadblocks, depending
@@ -20,7 +20,7 @@ on what type of development environment you have. In particular, we
 think you will have a bumpy ride on windows. We are working on improving
 these instructions.
 
-Developers should explore the [Getting Started Guide](https://github.com/sovrin-foundation/sovrin-client/blob/master/getting-started.md) to learn how Sovrin works.
+Developers should explore the [Getting Started Guide](https://github.com/hyperledger/indy-node/blob/stable/getting-started.md) to learn how Sovrin works.
 
 The Sovrin codebase makes extensive use of coroutines and the async/await keywords in
 Python, and as such, requires Python version 3.5.0 or later. Plenum also
@@ -57,7 +57,7 @@ deb-src http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main
 ```
 
 Now run
- 
+
 ```
 sudo apt-get update
 sudo apt-get install libsodium13
@@ -86,8 +86,8 @@ sudo apt-get update
 sudo apt-get install libsodium13
 ```
 
-8. If you still get the error ```E: Unable to locate package libsodium13``` then add ```deb http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main``` and ```deb-src http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main``` to your ```/etc/apt/sources.list```. 
-Now run ```sudo apt-get update``` and then ```sudo apt-get install libsodium13``` 
+8. If you still get the error ```E: Unable to locate package libsodium13``` then add ```deb http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main``` and ```deb-src http://ppa.launchpad.net/chris-lea/libsodium/ubuntu trusty main``` to your ```/etc/apt/sources.list```.
+Now run ```sudo apt-get update``` and then ```sudo apt-get install libsodium13```
 
 **CentOS/Redhat:**
 
